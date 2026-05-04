@@ -1,0 +1,55 @@
+# Dependencies
+node_modules/
+apps/*/node_modules/
+
+# Build outputs
+dist/
+build/
+apps/*/dist/
+packages/*/dist/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Logs and diagnostics
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Test and coverage output
+coverage/
+.nyc_output/
+
+# Caches
+.cache/
+.vite/
+apps/*/.vite/
+apps/*/node_modules/.vite/
+
+# Local data and generated exports
+*.db
+*.sqlite
+*.sqlite3
+*.dump
+*.bak
+*.tmp
+tmp/
+temp/
+synthetic/generated_raw_events.json
+synthetic/generated_raw_events.json.gz
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+
+# Editor and system files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
