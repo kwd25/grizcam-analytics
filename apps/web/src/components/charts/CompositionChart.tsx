@@ -3,7 +3,7 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { SectionCard } from "../SectionCard";
 
 export const CompositionChart = ({ data }: { data: CompositionPoint[] }) => {
-  const palette = ["#73e0ae", "#59a8ff", "#ffcf66", "#6e7f89"];
+  const palette = ["#e5e5e5", "#b8b8b8", "#8f8f8f", "#5f5f5f"];
 
   return (
     <SectionCard title="Activity Composition" subtitle="Wildlife versus human, vehicle, and empty-scene mix.">
@@ -15,11 +15,10 @@ export const CompositionChart = ({ data }: { data: CompositionPoint[] }) => {
                 <Cell key={entry.category} fill={palette[index % palette.length]} />
               ))}
             </Pie>
-            <Tooltip contentStyle={{ background: "#102028", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16 }} />
+            <Tooltip contentStyle={{ background: "#202020", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 16 }} />
           </PieChart>
         </ResponsiveContainer>
       </div>
     </SectionCard>
   );
 };
-

@@ -196,7 +196,7 @@ const frontendLint = (sql: string): QueryValidationIssue[] => {
 
 const formatCellValue = (value: unknown) => {
   if (value === null || value === undefined) {
-    return <span className="text-slate-500">NULL</span>;
+    return <span className="text-zinc-500">NULL</span>;
   }
   if (typeof value === "boolean") {
     return value ? "true" : "false";
@@ -296,7 +296,7 @@ const QueryIssues = ({ issues, tone = "danger" }: { issues?: QueryValidationIssu
     <div
       className={classNames(
         "rounded-2xl border px-4 py-3 text-sm",
-        tone === "danger" ? "border-rose-400/30 bg-rose-400/10 text-rose-100" : "border-white/10 bg-white/5 text-slate-300"
+        tone === "danger" ? "border-red-300/25 bg-red-300/10 text-red-100" : "border-white/10 bg-white/5 text-zinc-300"
       )}
     >
       <div className="font-medium">{tone === "danger" ? "Validation feedback" : "Workspace notes"}</div>
@@ -312,12 +312,12 @@ const SelectionPills = ({ values, emptyLabel }: { values: string[]; emptyLabel: 
   <div className="flex flex-wrap gap-2">
     {values.length > 0 ? (
       values.map((value) => (
-        <span key={value} className="rounded-full border border-white/10 bg-slate-950/60 px-2.5 py-1 text-xs text-slate-300">
+        <span key={value} className="rounded-full border border-white/10 bg-neutral-950/60 px-2.5 py-1 text-xs text-zinc-300">
           {value}
         </span>
       ))
     ) : (
-      <span className="text-xs text-slate-500">{emptyLabel}</span>
+      <span className="text-xs text-zinc-500">{emptyLabel}</span>
     )}
   </div>
 );
@@ -343,16 +343,16 @@ const MultiSelectDropdown = ({
     <summary className="flex cursor-pointer list-none items-start justify-between gap-3 px-3 py-2.5">
       <div className="min-w-0">
         <div className="text-sm font-medium text-white">{title}</div>
-        <div className="mt-0.5 text-[11px] text-slate-400">{subtitle}</div>
+        <div className="mt-0.5 text-[11px] text-zinc-400">{subtitle}</div>
         <div className="mt-2">
           <SelectionPills values={values} emptyLabel={emptyLabel} />
         </div>
       </div>
       <div className="flex items-center gap-2 pl-3">
-        <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-[11px] text-emerald-100">
+        <span className="rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-[11px] text-zinc-100">
           {values.length} selected
         </span>
-        <span className="text-slate-400 transition group-open:rotate-180">v</span>
+        <span className="text-zinc-400 transition group-open:rotate-180">v</span>
       </div>
     </summary>
     <div className="border-t border-white/10 px-3 py-3">
@@ -360,7 +360,7 @@ const MultiSelectDropdown = ({
         {onReset ? (
           <button
             onClick={onReset}
-            className="rounded-xl border border-white/10 px-3 py-2 text-xs text-slate-300 transition hover:bg-white/10"
+            className="rounded-xl border border-white/10 px-3 py-2 text-xs text-zinc-300 transition hover:bg-white/10"
           >
             Reset
           </button>
@@ -372,14 +372,14 @@ const MultiSelectDropdown = ({
           return (
             <label
               key={option.name}
-              className="flex items-center justify-between gap-3 rounded-xl border border-white/5 bg-slate-950/40 px-3 py-2 text-sm text-slate-200"
+              className="flex items-center justify-between gap-3 rounded-xl border border-white/5 bg-neutral-950/40 px-3 py-2 text-sm text-zinc-200"
             >
               <span className="truncate">{option.label}</span>
               <input
                 type="checkbox"
                 checked={checked}
                 onChange={() => onToggle(option.name)}
-                className="h-4 w-4 rounded border-white/20 bg-transparent text-emerald-400"
+                className="h-4 w-4 rounded border-white/20 bg-transparent text-zinc-200"
               />
             </label>
           );
@@ -406,13 +406,13 @@ const CompactBuilderSection = ({
     <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-2.5">
       <div className="min-w-0">
         <div className="text-sm font-medium text-white">{title}</div>
-        <div className="mt-0.5 text-[11px] text-slate-400">{subtitle}</div>
+        <div className="mt-0.5 text-[11px] text-zinc-400">{subtitle}</div>
       </div>
       <div className="flex items-center gap-2">
-        <span className="max-w-[160px] truncate rounded-full border border-white/10 bg-slate-950/60 px-2.5 py-1 text-[11px] text-slate-300">
+        <span className="max-w-[160px] truncate rounded-full border border-white/10 bg-neutral-950/60 px-2.5 py-1 text-[11px] text-zinc-300">
           {summary}
         </span>
-        <span className="text-slate-400 transition group-open:rotate-180">v</span>
+        <span className="text-zinc-400 transition group-open:rotate-180">v</span>
       </div>
     </summary>
     <div className="border-t border-white/10 px-3 py-3">{children}</div>
@@ -441,16 +441,16 @@ const ResultsTable = ({
 }) => {
   if (!result && status === "running") {
     return (
-      <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-10 text-center text-sm text-emerald-100">
+      <div className="rounded-2xl border border-white/15 bg-white/10 px-4 py-10 text-center text-sm text-zinc-100">
         <div className="text-base font-medium">Running query…</div>
-        <div className="mt-2 text-sm text-emerald-50/90">Queries auto-stop after 10 seconds if the response does not come back.</div>
+        <div className="mt-2 text-sm text-zinc-100/90">Queries auto-stop after 10 seconds if the response does not come back.</div>
       </div>
     );
   }
 
   if (!result) {
     return (
-      <div className="rounded-2xl border border-dashed border-white/10 px-4 py-10 text-center text-sm text-slate-400">
+      <div className="rounded-2xl border border-dashed border-white/10 px-4 py-10 text-center text-sm text-zinc-400">
         Run a safe query to inspect rows here.
       </div>
     );
@@ -462,7 +462,7 @@ const ResultsTable = ({
 
   if ((result.rowCount ?? 0) === 0) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-10 text-center text-sm text-slate-300">
+      <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-10 text-center text-sm text-zinc-300">
         The query ran successfully but returned no rows.
       </div>
     );
@@ -470,14 +470,14 @@ const ResultsTable = ({
 
   return (
     <div className="relative space-y-3">
-      <div className="flex flex-wrap gap-3 text-xs text-slate-400">
+      <div className="flex flex-wrap gap-3 text-xs text-zinc-400">
         <span>{formatNumber(result.rowCount ?? 0, 0)} rows</span>
         <span>{formatNumber(result.durationMs ?? 0, 0)} ms</span>
         <span>Applied limit: {formatNumber(result.appliedLimit ?? 0, 0)}</span>
       </div>
       <div className="overflow-auto rounded-2xl border border-white/10">
         <table className="min-w-full text-left text-sm">
-          <thead className="bg-slate-950/90 text-slate-400">
+          <thead className="bg-neutral-950/90 text-zinc-400">
             <tr>
               {result.columns?.map((column) => (
                 <th key={column.name} className="px-3 py-3 font-medium">
@@ -488,7 +488,7 @@ const ResultsTable = ({
           </thead>
           <tbody>
             {result.rows?.map((row, index) => (
-              <tr key={index} className="border-t border-white/5 text-slate-200">
+              <tr key={index} className="border-t border-white/5 text-zinc-200">
                 {result.columns?.map((column) => (
                   <td key={`${index}-${column.name}`} className="max-w-[320px] px-3 py-3 align-top">
                     <div className="break-words">{formatCellValue(row[column.name])}</div>
@@ -500,10 +500,10 @@ const ResultsTable = ({
         </table>
       </div>
       {status === "running" ? (
-        <div className="absolute inset-0 flex items-center justify-center rounded-2xl border border-emerald-400/20 bg-slate-950/75 backdrop-blur-sm">
-          <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-5 py-4 text-center text-sm text-emerald-100">
+        <div className="absolute inset-0 flex items-center justify-center rounded-2xl border border-white/15 bg-neutral-950/75 backdrop-blur-sm">
+          <div className="rounded-2xl border border-white/15 bg-white/10 px-5 py-4 text-center text-sm text-zinc-100">
             <div className="font-medium">{overlayText ?? "Running query…"}</div>
-            <div className="mt-2 text-xs text-emerald-50/90">Queries auto-stop after 10 seconds if the response hangs.</div>
+            <div className="mt-2 text-xs text-zinc-100/90">Queries auto-stop after 10 seconds if the response hangs.</div>
           </div>
         </div>
       ) : null}
@@ -513,8 +513,8 @@ const ResultsTable = ({
 
 const CodePanel = ({ title, code }: { title: string; code: string }) => (
   <div className="space-y-2">
-    <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{title}</div>
-    <pre className="overflow-auto rounded-2xl border border-white/10 bg-slate-950/75 p-4 text-xs leading-6 text-slate-100">
+    <div className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-400">{title}</div>
+    <pre className="overflow-auto rounded-2xl border border-white/10 bg-neutral-950/75 p-4 text-xs leading-6 text-zinc-100">
       <code>{code}</code>
     </pre>
   </div>
@@ -574,7 +574,7 @@ const renderInlineMarkdown = (text: string) => {
   const parts = text.split(/(`[^`]+`)/g);
   return parts.map((part, index) =>
     /^`[^`]+`$/.test(part) ? (
-      <code key={index} className="rounded bg-slate-950/70 px-1.5 py-0.5 text-[0.95em] text-sky-100">
+      <code key={index} className="rounded bg-neutral-950/70 px-1.5 py-0.5 text-[0.95em] text-zinc-100">
         {part.slice(1, -1)}
       </code>
     ) : (
@@ -588,13 +588,13 @@ const MarkdownMessage = ({ markdown }: { markdown: string }) => {
   const blocks = normalized.length > 0 ? normalized.split(/\n\s*\n/) : [];
 
   return (
-    <div className="space-y-3 text-sm leading-7 text-slate-200">
+    <div className="space-y-3 text-sm leading-7 text-zinc-200">
       {blocks.map((block, blockIndex) => {
         const trimmed = block.trim();
         if (/^```/.test(trimmed) && trimmed.endsWith("```")) {
           const code = trimmed.replace(/^```[^\n]*\n?/, "").replace(/\n?```$/, "");
           return (
-            <pre key={blockIndex} className="overflow-auto rounded-2xl border border-white/10 bg-slate-950/75 p-4 text-xs leading-6 text-slate-100">
+            <pre key={blockIndex} className="overflow-auto rounded-2xl border border-white/10 bg-neutral-950/75 p-4 text-xs leading-6 text-zinc-100">
               <code>{code}</code>
             </pre>
           );
@@ -604,7 +604,7 @@ const MarkdownMessage = ({ markdown }: { markdown: string }) => {
         const bulletLines = lines.filter((line) => /^[-*]\s+/.test(line.trim()));
         if (bulletLines.length === lines.length && bulletLines.length > 0) {
           return (
-            <ul key={blockIndex} className="space-y-2 pl-5 text-slate-200">
+            <ul key={blockIndex} className="space-y-2 pl-5 text-zinc-200">
               {bulletLines.map((line, lineIndex) => (
                 <li key={lineIndex} className="list-disc">
                   {renderInlineMarkdown(line.replace(/^[-*]\s+/, ""))}
@@ -638,7 +638,7 @@ const ModeSidebar = ({
   <aside className="panel h-full rounded-[24px] p-2.5 overflow-auto">
     <div className="mb-2.5">
       <h2 className="text-base font-semibold text-white">Query Workspace</h2>
-      <p className="mt-1 text-[11px] leading-4 text-slate-400">Chat is the primary experience. Switch to Manual when you want the full builder and raw editor controls.</p>
+      <p className="mt-1 text-[11px] leading-4 text-zinc-400">Chat is the primary experience. Switch to Manual when you want the full builder and raw editor controls.</p>
     </div>
     <div className="space-y-2">
       {(["chat", "manual"] as ViewMode[]).map((mode) => (
@@ -648,8 +648,8 @@ const ModeSidebar = ({
           className={classNames(
             "w-full rounded-2xl border px-3 py-2 text-left transition",
             viewMode === mode
-              ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-100"
-              : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"
+              ? "border-white/15 bg-white/10 text-zinc-100"
+              : "border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10"
           )}
         >
           <div className="text-sm font-medium leading-none">{mode === "chat" ? "Chat" : "Manual"}</div>
@@ -661,13 +661,13 @@ const ModeSidebar = ({
     </div>
 
     <div className="mt-4">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Example prompts</div>
+      <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-400">Example prompts</div>
       <div className="mt-2 space-y-2">
         {AI_EXAMPLE_PROMPTS.map((prompt) => (
           <button
             key={prompt}
             onClick={() => onPromptExample(prompt)}
-            className="w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-left text-sm text-slate-200 transition hover:bg-white/10"
+            className="w-full rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-left text-sm text-zinc-200 transition hover:bg-white/10"
           >
             {prompt}
           </button>
@@ -676,20 +676,20 @@ const ModeSidebar = ({
     </div>
 
     <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-2.5">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Latest query context</div>
+      <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-400">Latest query context</div>
       {latestQuery?.sql ? (
-        <div className="mt-2 space-y-2 text-sm text-slate-300">
-          <div className="rounded-xl border border-white/10 bg-slate-950/50 px-3 py-2 text-[11px] leading-4 text-slate-200">
+        <div className="mt-2 space-y-2 text-sm text-zinc-300">
+          <div className="rounded-xl border border-white/10 bg-neutral-950/50 px-3 py-2 text-[11px] leading-4 text-zinc-200">
             Validation: {latestQuery.validation?.ok ? "passed" : "not yet valid"}
           </div>
-          <div className="rounded-xl border border-white/10 bg-slate-950/50 px-3 py-2 text-[11px] leading-4 text-slate-400">
+          <div className="rounded-xl border border-white/10 bg-neutral-950/50 px-3 py-2 text-[11px] leading-4 text-zinc-400">
             {latestQuery.result?.rowCount !== undefined
               ? `${formatNumber(latestQuery.result.rowCount, 0)} rows • ${formatNumber(latestQuery.result.durationMs ?? 0, 0)} ms`
               : "No executed result yet"}
           </div>
         </div>
       ) : (
-        <p className="mt-3 text-sm text-slate-500">No query has been generated yet.</p>
+        <p className="mt-3 text-sm text-zinc-500">No query has been generated yet.</p>
       )}
     </div>
   </aside>
@@ -710,18 +710,18 @@ const ChatTranscript = ({
     {messages.length === 0 ? (
       <div className="rounded-3xl border border-dashed border-white/10 px-6 py-12 text-center">
         <div className="text-lg font-medium text-white">Ask for a query or follow up on the data</div>
-        <p className="mt-2 text-sm text-slate-400">Use Create query to generate and run SQL. Use Follow up to ask about the data, schema, or how to refine the last query.</p>
+        <p className="mt-2 text-sm text-zinc-400">Use Create query to generate and run SQL. Use Follow up to ask about the data, schema, or how to refine the last query.</p>
       </div>
     ) : null}
     {messages.map((message) => {
       if (message.kind === "user") {
         return (
           <div key={message.id} className="flex justify-end">
-            <div className="max-w-[85%] rounded-[28px] border border-emerald-400/20 bg-emerald-400/10 px-4 py-3">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-200/80">
+            <div className="max-w-[85%] rounded-[28px] border border-white/15 bg-white/10 px-4 py-3">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-100/80">
                 {message.action === "create-query" ? "Create query" : "Follow up"}
               </div>
-              <div className="mt-2 whitespace-pre-wrap text-sm leading-6 text-emerald-50">{message.text}</div>
+              <div className="mt-2 whitespace-pre-wrap text-sm leading-6 text-zinc-100">{message.text}</div>
             </div>
           </div>
         );
@@ -732,7 +732,7 @@ const ChatTranscript = ({
           <div key={message.id} className="flex justify-start">
             <div className="max-w-[85%] rounded-[28px] border border-white/10 bg-white/5 px-4 py-3">
               <div className="text-sm font-medium text-white">{message.title}</div>
-              <div className="mt-2 text-sm leading-6 text-slate-300">{message.detail}</div>
+              <div className="mt-2 text-sm leading-6 text-zinc-300">{message.detail}</div>
               <div className="mt-3">
                 <QueryIssues issues={[{ code: "EXECUTION_ERROR", message: message.detail }]} tone={message.tone} />
               </div>
@@ -745,7 +745,7 @@ const ChatTranscript = ({
         return (
           <div key={message.id} className="flex justify-start">
             <div className="max-w-[92%] rounded-[28px] border border-white/10 bg-white/5 px-4 py-4">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Follow up</div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-400">Follow up</div>
               <div className="mt-3">
                 <MarkdownMessage markdown={message.answer} />
               </div>
@@ -759,7 +759,7 @@ const ChatTranscript = ({
                   <CodePanel title="Suggested SQL draft" code={message.suggestedSql} />
                   <button
                     onClick={() => onUseSuggestedSql(message.suggestedSql!)}
-                    className="rounded-xl border border-sky-400/30 bg-sky-400/10 px-3 py-2 text-xs text-sky-100 transition hover:bg-sky-400/20"
+                    className="rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-xs text-zinc-100 transition hover:bg-white/10"
                   >
                     Use in editor
                   </button>
@@ -774,30 +774,30 @@ const ChatTranscript = ({
         <div key={message.id} className="flex justify-start">
           <div className="max-w-[96%] space-y-5 rounded-[32px] border border-white/10 bg-white/5 px-5 py-5">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 text-[11px] text-emerald-100">
+              <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] text-zinc-100">
                 {message.validation.ok ? "Validation passed" : "Validation failed"}
               </span>
               {message.result?.ok ? (
-                <span className="rounded-full border border-sky-400/30 bg-sky-400/10 px-3 py-1 text-[11px] text-sky-100">
+                <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] text-zinc-100">
                   Query ran
                 </span>
               ) : null}
               {message.result?.ok ? (
-                <span className="text-xs text-slate-400">
+                <span className="text-xs text-zinc-400">
                   {formatNumber(message.result.rowCount ?? 0, 0)} rows • {formatNumber(message.result.durationMs ?? 0, 0)} ms
                 </span>
               ) : null}
             </div>
             <div className="space-y-4">
               <div>
-                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">What I heard</div>
-                <div className="mt-2 rounded-2xl border border-white/10 bg-slate-950/45 px-4 py-3 text-sm leading-7 text-slate-200">
+                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-400">What I heard</div>
+                <div className="mt-2 rounded-2xl border border-white/10 bg-neutral-950/45 px-4 py-3 text-sm leading-7 text-zinc-200">
                   <MarkdownMessage markdown={message.userIntentSummary} />
                 </div>
               </div>
               <div>
-                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">How I approached it</div>
-                <div className="mt-2 rounded-2xl border border-white/10 bg-slate-950/45 px-4 py-3 text-sm leading-7 text-slate-200">
+                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-400">How I approached it</div>
+                <div className="mt-2 rounded-2xl border border-white/10 bg-neutral-950/45 px-4 py-3 text-sm leading-7 text-zinc-200">
                   <MarkdownMessage markdown={message.queryExplanation} />
                 </div>
               </div>
@@ -806,13 +806,13 @@ const ChatTranscript = ({
             {message.warning ? <QueryIssues issues={[{ code: "INVALID_QUERY", message: message.warning }]} tone="muted" /> : null}
             {!message.validation.ok ? <QueryIssues issues={message.validation.issues} /> : null}
             {message.validation.ok ? (
-              <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100">
+              <div className="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-zinc-100">
                 Validation passed. The normalized query is ready in Manual mode if you want to tweak it.
               </div>
             ) : null}
             {message.result ? (
               <div className="space-y-3">
-                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Query output</div>
+                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-400">Query output</div>
                 <ResultsTable result={message.result} status={requestStatus === "running" && isBusy ? "running" : "success"} />
               </div>
             ) : null}
@@ -862,8 +862,8 @@ const ChatWorkspace = ({
       <SectionCard
         title="Query Chat"
         subtitle="Ask for a query or follow up with questions about the dataset, validation feedback, or how to refine the latest SQL."
-        className="h-full min-h-0 overflow-hidden"
-        contentClassName="flex min-h-0 flex-col"
+        className="lg:h-full lg:min-h-0 lg:overflow-hidden"
+        contentClassName="flex flex-col lg:min-h-0"
       >
         <div className="flex min-h-0 flex-1 flex-col">
           <div
@@ -878,7 +878,7 @@ const ChatWorkspace = ({
             <ChatTranscript messages={messages} isBusy={isBusy} requestStatus={requestStatus} onUseSuggestedSql={onUseSuggestedSql} />
           </div>
           <div className="mt-1.5 shrink-0 border-t border-white/10 pt-2">
-            <div className="rounded-[24px] border border-white/10 bg-slate-950/90 p-2 shadow-[0_-12px_32px_rgba(2,6,23,0.22)]">
+            <div className="rounded-[24px] border border-white/10 bg-neutral-950/90 p-2 shadow-[0_-12px_32px_rgba(2,6,23,0.22)]">
               <textarea
                 value={composerText}
                 onChange={(event) => onComposerTextChange(event.target.value)}
@@ -891,7 +891,7 @@ const ChatWorkspace = ({
                 placeholder={composerAction === "create-query" ? "Ask for a query in plain English" : "Ask about the data, the query, or what a result means"}
                 spellCheck={false}
                 rows={2}
-                className="max-h-20 min-h-[44px] w-full resize-none overflow-y-auto rounded-2xl border border-white/10 bg-slate-950/70 px-3 py-2 text-sm leading-5 text-slate-100 outline-none transition focus:border-emerald-400"
+                className="max-h-20 min-h-[44px] w-full resize-none overflow-y-auto rounded-2xl border border-white/10 bg-neutral-950/70 px-3 py-2 text-sm leading-5 text-zinc-100 outline-none transition focus:border-zinc-300"
               />
               <div className="mt-1.5 flex flex-col gap-1.5 md:flex-row md:items-center md:justify-between">
                 <div className="flex flex-wrap gap-2">
@@ -902,8 +902,8 @@ const ChatWorkspace = ({
                       className={classNames(
                         "rounded-full border px-3 py-1.5 text-xs font-medium leading-none transition",
                         composerAction === action
-                          ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-100"
-                          : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"
+                          ? "border-white/15 bg-white/10 text-zinc-100"
+                          : "border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10"
                       )}
                     >
                       {action === "create-query" ? "Create query" : "Follow up"}
@@ -913,12 +913,12 @@ const ChatWorkspace = ({
                 <button
                   onClick={onSubmit}
                   disabled={isBusy || composerText.trim().length === 0}
-                  className="rounded-2xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-sm font-medium text-emerald-100 transition hover:bg-emerald-400/20 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-2xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-zinc-100 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isBusy ? (composerAction === "create-query" ? "Working…" : "Thinking…") : composerAction === "create-query" ? "Send create query" : "Send follow up"}
                 </button>
               </div>
-              {error ? <div className="mt-2 text-xs text-rose-200">{error}</div> : null}
+              {error ? <div className="mt-2 text-xs text-red-200">{error}</div> : null}
             </div>
           </div>
         </div>
@@ -998,9 +998,9 @@ const ManualWorkspace = ({
     <SectionCard
       title="Manual Workspace"
       subtitle="Builder controls, direct SQL editing, and export remain available here."
-      actions={<span className="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 text-xs text-emerald-100">SELECT only</span>}
+      actions={<span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs text-zinc-100">SELECT only</span>}
     >
-      <p className="max-w-4xl text-sm leading-6 text-slate-300">
+      <p className="max-w-4xl text-sm leading-6 text-zinc-300">
         The backend still validates every query before execution. Generated SQL from Chat mode lands here automatically so you can inspect and tweak it.
       </p>
       {metadataQueryError ? (
@@ -1020,7 +1020,7 @@ const ManualWorkspace = ({
               className="rounded-2xl border border-white/10 bg-white/5 px-3 py-3 text-left transition hover:bg-white/10"
             >
               <div className="text-sm font-medium text-white">{example.label}</div>
-              <div className="mt-1 text-xs text-slate-400">{example.description}</div>
+              <div className="mt-1 text-xs text-zinc-400">{example.description}</div>
             </button>
           ))}
         </div>
@@ -1035,18 +1035,18 @@ const ManualWorkspace = ({
         {metadataQueryError ? (
           <QueryIssues issues={metadataIssues} />
         ) : !metadata || !builderState || !relation ? (
-          <div className="rounded-2xl border border-dashed border-white/10 px-4 py-10 text-center text-sm text-slate-400">
+          <div className="rounded-2xl border border-dashed border-white/10 px-4 py-10 text-center text-sm text-zinc-400">
             Loading the approved query catalog…
           </div>
         ) : (
           <div className="space-y-3">
             <div className="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_140px]">
-              <label className="space-y-2 text-sm text-slate-300">
-                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Relation</span>
+              <label className="space-y-2 text-sm text-zinc-300">
+                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-400">Relation</span>
                 <select
                   value={builderState.relation}
                   onChange={(event) => setRelation(event.target.value)}
-                  className="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-3 py-2.5 text-sm text-slate-100 outline-none focus:border-emerald-400"
+                  className="w-full rounded-2xl border border-white/10 bg-neutral-950/60 px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-300"
                 >
                   {metadata.relations.map((item) => (
                     <option key={item.name} value={item.name}>
@@ -1055,8 +1055,8 @@ const ManualWorkspace = ({
                   ))}
                 </select>
               </label>
-              <label className="space-y-2 text-sm text-slate-300">
-                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Limit</span>
+              <label className="space-y-2 text-sm text-zinc-300">
+                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-400">Limit</span>
                 <input
                   type="number"
                   min={1}
@@ -1072,7 +1072,7 @@ const ManualWorkspace = ({
                         : current
                     )
                   }
-                  className="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-3 py-2.5 text-sm text-slate-100 outline-none focus:border-emerald-400"
+                  className="w-full rounded-2xl border border-white/10 bg-neutral-950/60 px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-300"
                 />
               </label>
             </div>
@@ -1159,7 +1159,7 @@ const ManualWorkspace = ({
                               : current
                           )
                         }
-                        className="rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-xs text-slate-100 outline-none focus:border-emerald-400"
+                        className="rounded-xl border border-white/10 bg-neutral-950/60 px-3 py-2 text-xs text-zinc-100 outline-none focus:border-zinc-300"
                       >
                         {metadata.allowedAggregates.map((option) => (
                           <option key={option} value={option}>
@@ -1181,7 +1181,7 @@ const ManualWorkspace = ({
                               : current
                           )
                         }
-                        className="rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-xs text-slate-100 outline-none focus:border-emerald-400"
+                        className="rounded-xl border border-white/10 bg-neutral-950/60 px-3 py-2 text-xs text-zinc-100 outline-none focus:border-zinc-300"
                       >
                         {relation.columns
                           .filter((column) => column.aggregates.length > 0)
@@ -1202,7 +1202,7 @@ const ManualWorkspace = ({
                               : current
                           )
                         }
-                        className="rounded-xl border border-white/10 px-3 py-2 text-xs text-slate-300 transition hover:bg-white/10"
+                        className="rounded-xl border border-white/10 px-3 py-2 text-xs text-zinc-300 transition hover:bg-white/10"
                       >
                         X
                       </button>
@@ -1226,7 +1226,7 @@ const ManualWorkspace = ({
                           : current
                       )
                     }
-                    className="w-full rounded-xl border border-white/10 bg-slate-950/50 px-3 py-2 text-xs text-slate-200 transition hover:bg-white/10"
+                    className="w-full rounded-xl border border-white/10 bg-neutral-950/50 px-3 py-2 text-xs text-zinc-200 transition hover:bg-white/10"
                   >
                     Add aggregate
                   </button>
@@ -1253,19 +1253,19 @@ const ManualWorkspace = ({
                           : current
                       )
                     }
-                    className="rounded-xl border border-white/10 px-3 py-2 text-xs text-slate-300 transition hover:bg-white/10"
+                    className="rounded-xl border border-white/10 px-3 py-2 text-xs text-zinc-300 transition hover:bg-white/10"
                   >
                     Add filter
                   </button>
                 </div>
                 <div className="space-y-2">
                   {builderState.filters.length === 0 ? (
-                    <div className="rounded-xl border border-dashed border-white/10 px-3 py-3 text-xs text-slate-400">No filters yet.</div>
+                    <div className="rounded-xl border border-dashed border-white/10 px-3 py-3 text-xs text-zinc-400">No filters yet.</div>
                   ) : (
                     builderState.filters.map((filter) => {
                       const column = relation.columns.find((item) => item.name === filter.column) ?? relation.columns[0];
                       return (
-                        <div key={filter.id} className="grid gap-2 rounded-2xl border border-white/5 bg-slate-950/35 p-2.5">
+                        <div key={filter.id} className="grid gap-2 rounded-2xl border border-white/5 bg-neutral-950/35 p-2.5">
                           <div className="grid gap-2 xl:grid-cols-[minmax(0,1fr)_130px_auto]">
                             <select
                               value={filter.column}
@@ -1273,7 +1273,7 @@ const ManualWorkspace = ({
                                 const nextColumn = relation.columns.find((item) => item.name === event.target.value) ?? relation.columns[0];
                                 updateFilter(filter.id, { column: nextColumn.name, operator: nextColumn.filterOperators[0], value: "", secondValue: "" });
                               }}
-                              className="rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-xs text-slate-100 outline-none focus:border-emerald-400"
+                              className="rounded-xl border border-white/10 bg-neutral-950/60 px-3 py-2 text-xs text-zinc-100 outline-none focus:border-zinc-300"
                             >
                               {relation.columns.map((item) => (
                                 <option key={item.name} value={item.name}>
@@ -1284,7 +1284,7 @@ const ManualWorkspace = ({
                             <select
                               value={filter.operator}
                               onChange={(event) => updateFilter(filter.id, { operator: event.target.value as QueryOperator })}
-                              className="rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-xs text-slate-100 outline-none focus:border-emerald-400"
+                              className="rounded-xl border border-white/10 bg-neutral-950/60 px-3 py-2 text-xs text-zinc-100 outline-none focus:border-zinc-300"
                             >
                               {column.filterOperators.map((operator) => (
                                 <option key={operator} value={operator}>
@@ -1303,7 +1303,7 @@ const ManualWorkspace = ({
                                     : current
                                 )
                               }
-                              className="rounded-xl border border-white/10 px-3 py-2 text-xs text-slate-300 transition hover:bg-white/10"
+                              className="rounded-xl border border-white/10 px-3 py-2 text-xs text-zinc-300 transition hover:bg-white/10"
                             >
                               X
                             </button>
@@ -1315,19 +1315,19 @@ const ManualWorkspace = ({
                                   value={filter.value ?? ""}
                                   onChange={(event) => updateFilter(filter.id, { value: event.target.value })}
                                   placeholder={filter.operator === "IN" ? "value1, value2" : "Value"}
-                                  className="rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-xs text-slate-100 outline-none focus:border-emerald-400"
+                                  className="rounded-xl border border-white/10 bg-neutral-950/60 px-3 py-2 text-xs text-zinc-100 outline-none focus:border-zinc-300"
                                 />
                                 {filter.operator === "BETWEEN" ? (
                                   <input
                                     value={filter.secondValue ?? ""}
                                     onChange={(event) => updateFilter(filter.id, { secondValue: event.target.value })}
                                     placeholder="And"
-                                    className="rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-xs text-slate-100 outline-none focus:border-emerald-400"
+                                    className="rounded-xl border border-white/10 bg-neutral-950/60 px-3 py-2 text-xs text-zinc-100 outline-none focus:border-zinc-300"
                                   />
                                 ) : null}
                               </>
                             ) : (
-                              <div className="rounded-xl border border-dashed border-white/10 px-3 py-2 text-xs text-slate-400">No value needed</div>
+                              <div className="rounded-xl border border-dashed border-white/10 px-3 py-2 text-xs text-zinc-400">No value needed</div>
                             )}
                           </div>
                         </div>
@@ -1350,17 +1350,17 @@ const ManualWorkspace = ({
                           : current
                       )
                     }
-                    className="rounded-xl border border-white/10 px-3 py-2 text-xs text-slate-300 transition hover:bg-white/10"
+                    className="rounded-xl border border-white/10 px-3 py-2 text-xs text-zinc-300 transition hover:bg-white/10"
                   >
                     Add sort
                   </button>
                 </div>
                 <div className="space-y-2">
                   {builderState.sort.length === 0 ? (
-                    <div className="rounded-xl border border-dashed border-white/10 px-3 py-3 text-xs text-slate-400">No sort applied.</div>
+                    <div className="rounded-xl border border-dashed border-white/10 px-3 py-3 text-xs text-zinc-400">No sort applied.</div>
                   ) : (
                     builderState.sort.map((sort, index) => (
-                      <div key={`${sort.column}-${index}`} className="grid gap-2 rounded-2xl border border-white/5 bg-slate-950/35 p-2.5 xl:grid-cols-[minmax(0,1fr)_120px_auto]">
+                      <div key={`${sort.column}-${index}`} className="grid gap-2 rounded-2xl border border-white/5 bg-neutral-950/35 p-2.5 xl:grid-cols-[minmax(0,1fr)_120px_auto]">
                         <select
                           value={sort.column}
                           onChange={(event) =>
@@ -1375,7 +1375,7 @@ const ManualWorkspace = ({
                                 : current
                             )
                           }
-                          className="rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-xs text-slate-100 outline-none focus:border-emerald-400"
+                          className="rounded-xl border border-white/10 bg-neutral-950/60 px-3 py-2 text-xs text-zinc-100 outline-none focus:border-zinc-300"
                         >
                           {sortOptions.map((option) => (
                             <option key={option} value={option}>
@@ -1397,7 +1397,7 @@ const ManualWorkspace = ({
                                 : current
                             )
                           }
-                          className="rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-xs text-slate-100 outline-none focus:border-emerald-400"
+                          className="rounded-xl border border-white/10 bg-neutral-950/60 px-3 py-2 text-xs text-zinc-100 outline-none focus:border-zinc-300"
                         >
                           <option value="asc">ASC</option>
                           <option value="desc">DESC</option>
@@ -1413,7 +1413,7 @@ const ManualWorkspace = ({
                                 : current
                             )
                           }
-                          className="rounded-xl border border-white/10 px-3 py-2 text-xs text-slate-300 transition hover:bg-white/10"
+                          className="rounded-xl border border-white/10 px-3 py-2 text-xs text-zinc-300 transition hover:bg-white/10"
                         >
                           X
                         </button>
@@ -1433,12 +1433,12 @@ const ManualWorkspace = ({
         actions={
           <div className="flex flex-wrap gap-2">
             {lastGeneratedByAi ? (
-              <span className="rounded-full border border-sky-400/30 bg-sky-400/10 px-3 py-1 text-xs text-sky-100">Generated by AI</span>
+              <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs text-zinc-100">Generated by AI</span>
             ) : null}
             <span
               className={classNames(
                 "rounded-full border px-3 py-1 text-xs",
-                isCustomSql ? "border-amber-400/30 bg-amber-400/10 text-amber-100" : "border-emerald-400/30 bg-emerald-400/10 text-emerald-100"
+                isCustomSql ? "border-stone-400/30 bg-stone-400/10 text-stone-100" : "border-white/15 bg-white/10 text-zinc-100"
               )}
             >
               {isCustomSql ? "Custom SQL" : "Builder linked"}
@@ -1450,7 +1450,7 @@ const ManualWorkspace = ({
                 setLastGeneratedByAi(false);
               }}
               disabled={!generatedSql}
-              className="rounded-xl border border-white/10 px-3 py-2 text-xs text-slate-300 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+              className="rounded-xl border border-white/10 px-3 py-2 text-xs text-zinc-300 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Reset to builder SQL
             </button>
@@ -1458,7 +1458,7 @@ const ManualWorkspace = ({
         }
       >
         <div className="space-y-4">
-          <div className="rounded-2xl border border-amber-400/20 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">
+          <div className="rounded-2xl border border-stone-400/25 bg-stone-400/10 px-4 py-3 text-sm text-stone-100">
             Use read-only SELECT queries only. You can filter, group, join approved datasets, and work with CTEs or subqueries.
           </div>
           <textarea
@@ -1472,28 +1472,28 @@ const ManualWorkspace = ({
               }
             }}
             spellCheck={false}
-            className="min-h-[320px] w-full rounded-3xl border border-white/10 bg-slate-950/75 px-4 py-4 font-mono text-sm leading-6 text-slate-100 outline-none focus:border-emerald-400"
+            className="min-h-[320px] w-full rounded-3xl border border-white/10 bg-neutral-950/75 px-4 py-4 font-mono text-sm leading-6 text-zinc-100 outline-none focus:border-zinc-300"
           />
-          <div className="text-xs text-slate-400">Generated SQL stays editable. You can inspect and tweak it before or after validation.</div>
+          <div className="text-xs text-zinc-400">Generated SQL stays editable. You can inspect and tweak it before or after validation.</div>
           <div className="flex flex-wrap gap-3">
             <button
               onClick={() => void runValidation()}
               disabled={requestStatus === "validating" || requestStatus === "running" || sql.trim().length === 0}
-              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-slate-100 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-zinc-100 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {requestStatus === "validating" ? "Validating…" : "Validate query"}
             </button>
             <button
               onClick={() => void runQuery()}
               disabled={!canRun || requestStatus === "running" || requestStatus === "validating"}
-              className="rounded-2xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm font-medium text-emerald-100 transition hover:bg-emerald-400/20 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm font-medium text-zinc-100 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {requestStatus === "running" ? "Running…" : "Run query"}
             </button>
             <button
               onClick={() => void exportResults()}
               disabled={!canExport || exportPending}
-              className="rounded-2xl border border-sky-400/30 bg-sky-400/10 px-4 py-3 text-sm font-medium text-sky-100 transition hover:bg-sky-400/20 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm font-medium text-zinc-100 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {exportPending ? "Exporting…" : "Export CSV"}
             </button>
@@ -1501,7 +1501,7 @@ const ManualWorkspace = ({
           <QueryIssues issues={clientIssues} />
           {latestIssues.length > 0 && requestStatus !== "running" && requestStatus !== "validating" ? <QueryIssues issues={latestIssues} /> : null}
           {lastValidation?.ok ? (
-            <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100">
+            <div className="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-zinc-100">
               Validation passed. The backend will execute the normalized read-only query with a limit of {formatNumber(lastValidation.appliedLimit ?? 0, 0)} rows.
             </div>
           ) : null}
@@ -1515,7 +1515,7 @@ const ManualWorkspace = ({
           <button
             onClick={() => void exportResults()}
             disabled={!canExport || exportPending}
-            className="rounded-xl border border-white/10 px-3 py-2 text-xs text-slate-300 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+            className="rounded-xl border border-white/10 px-3 py-2 text-xs text-zinc-300 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {exportPending ? "Exporting…" : "Export CSV"}
           </button>
@@ -1890,8 +1890,8 @@ export const QueryPage = () => {
       subtitle="Chat-first query workspace for GrizCam analytics, with a manual builder mode when you need full control."
       badge={`${appEnv.demoLabel} • Read-only workspace`}
       viewportLayout
-      mainClassName={viewMode === "chat" ? "flex min-h-0 flex-col overflow-hidden" : "min-h-0 overflow-y-auto pr-1"}
-      asideClassName="overflow-y-auto"
+      mainClassName={viewMode === "chat" ? "flex flex-col lg:min-h-0 lg:overflow-hidden" : "lg:min-h-0 lg:overflow-y-auto lg:pr-1"}
+      asideClassName="lg:overflow-y-auto"
       aside={
         <ModeSidebar
           viewMode={viewMode}

@@ -3,7 +3,7 @@ import { formatCompactNumber, formatDurationShort, formatNullableNumber, formatP
 
 const MetricCard = ({ label, value, tone = "text-white" }: { label: string; value: string; tone?: string }) => (
   <div className="panel rounded-3xl p-4">
-    <div className="text-xs uppercase tracking-[0.18em] text-slate-400">{label}</div>
+    <div className="text-xs uppercase tracking-[0.18em] text-zinc-400">{label}</div>
     <div className={`mt-3 text-2xl font-semibold ${tone}`}>{value}</div>
   </div>
 );
@@ -16,11 +16,11 @@ export const OverviewKpiStrip = ({ data }: { data: OverviewKpis }) => {
     ["Human Share", formatPercent(data.humanSharePct / 100)],
     ["AI Processed", formatPercent(data.aiProcessedPct / 100)],
     ["Upload Success", formatPercent(data.uploadSuccessPct / 100)],
-    ["Avg Upload Lag", formatDurationShort(data.avgUploadLagSeconds), "text-emerald-300"],
-    ["Avg Processing Lag", formatDurationShort(data.avgProcessingLagSeconds), "text-emerald-300"],
-    ["Cameras With Alerts", formatCompactNumber(data.camerasWithAlerts), data.camerasWithAlerts > 0 ? "text-amber-300" : "text-emerald-300"],
-    ["Avg Voltage", formatNullableNumber(data.avgVoltage, 2, "v"), "text-emerald-300"],
-    ["Low-Light Share", formatPercent(data.lowLightSharePct / 100), "text-emerald-300"]
+    ["Avg Upload Lag", formatDurationShort(data.avgUploadLagSeconds), "text-zinc-100"],
+    ["Avg Processing Lag", formatDurationShort(data.avgProcessingLagSeconds), "text-zinc-100"],
+    ["Cameras With Alerts", formatCompactNumber(data.camerasWithAlerts), data.camerasWithAlerts > 0 ? "text-stone-200" : "text-zinc-100"],
+    ["Avg Voltage", formatNullableNumber(data.avgVoltage, 2, "v"), "text-zinc-100"],
+    ["Low-Light Share", formatPercent(data.lowLightSharePct / 100), "text-zinc-100"]
   ];
 
   return (

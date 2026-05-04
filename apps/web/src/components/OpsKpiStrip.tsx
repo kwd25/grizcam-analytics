@@ -3,7 +3,7 @@ import { formatCompactNumber, formatDurationShort, formatPercent } from "../lib/
 
 const MetricCard = ({ label, value, tone = "text-white" }: { label: string; value: string; tone?: string }) => (
   <div className="panel rounded-3xl p-4">
-    <div className="text-xs uppercase tracking-[0.18em] text-slate-400">{label}</div>
+    <div className="text-xs uppercase tracking-[0.18em] text-zinc-400">{label}</div>
     <div className={`mt-3 text-2xl font-semibold ${tone}`}>{value}</div>
   </div>
 );
@@ -15,24 +15,24 @@ export const OpsKpiStrip = ({ data }: { data: OverviewResponse }) => {
     [
       "Cameras With Alerts",
       formatCompactNumber(data.kpis.camerasWithAlerts),
-      data.kpis.camerasWithAlerts > 0 ? "text-amber-300" : "text-emerald-300"
+      data.kpis.camerasWithAlerts > 0 ? "text-stone-200" : "text-zinc-100"
     ],
     [
       "Stale / Unhealthy",
       formatCompactNumber(staleOrUnhealthyCount),
-      staleOrUnhealthyCount > 0 ? "text-amber-300" : "text-emerald-300"
+      staleOrUnhealthyCount > 0 ? "text-stone-200" : "text-zinc-100"
     ],
-    ["Avg Upload Lag", formatDurationShort(data.kpis.avgUploadLagSeconds), "text-emerald-300"],
-    ["Avg Processing Lag", formatDurationShort(data.kpis.avgProcessingLagSeconds), "text-emerald-300"],
+    ["Avg Upload Lag", formatDurationShort(data.kpis.avgUploadLagSeconds), "text-zinc-100"],
+    ["Avg Processing Lag", formatDurationShort(data.kpis.avgProcessingLagSeconds), "text-zinc-100"],
     [
       "Upload Success",
       formatPercent(data.kpis.uploadSuccessPct / 100),
-      data.kpis.uploadSuccessPct < 95 ? "text-amber-300" : "text-emerald-300"
+      data.kpis.uploadSuccessPct < 95 ? "text-stone-200" : "text-zinc-100"
     ],
     [
       "JSON Completion",
       formatPercent(data.kpis.jsonProcessedPct / 100),
-      data.kpis.jsonProcessedPct < 90 ? "text-amber-300" : "text-emerald-300"
+      data.kpis.jsonProcessedPct < 90 ? "text-stone-200" : "text-zinc-100"
     ]
   ];
 

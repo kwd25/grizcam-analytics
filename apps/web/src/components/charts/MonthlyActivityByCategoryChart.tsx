@@ -11,14 +11,14 @@ export const MonthlyActivityByCategoryChart = ({ data }: { data: MonthlyActivity
       <ResponsiveContainer>
         <BarChart data={data}>
           <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
-          <XAxis dataKey="month" stroke="#8ea6b1" />
-          <YAxis stroke="#8ea6b1" />
-          <Tooltip contentStyle={{ background: "#102028", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16 }} />
+          <XAxis dataKey="month" stroke="#a1a1aa" />
+          <YAxis stroke="#a1a1aa" />
+          <Tooltip contentStyle={{ background: "#202020", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 16 }} />
           <Legend />
-          <Bar dataKey="wildlife" stackId="a" fill="#73e0ae" />
-          <Bar dataKey="human" stackId="a" fill="#59a8ff" />
-          <Bar dataKey="vehicle" stackId="a" fill="#ffcf66" />
-          <Bar dataKey="emptyScene" stackId="a" fill="#6e7f89" />
+          <Bar dataKey="wildlife" stackId="a" fill="#e5e5e5" />
+          <Bar dataKey="human" stackId="a" fill="#b8b8b8" />
+          <Bar dataKey="vehicle" stackId="a" fill="#8f8f8f" />
+          <Bar dataKey="emptyScene" stackId="a" fill="#5f5f5f" />
         </BarChart>
       </ResponsiveContainer>
     </div>

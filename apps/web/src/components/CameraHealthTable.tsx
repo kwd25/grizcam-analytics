@@ -7,7 +7,7 @@ export const CameraHealthTable = ({ rows }: { rows: CameraHealthRow[] }) => (
   <SectionCard title="Camera Health" subtitle="Operational summary by camera, including freshness, pipeline completion, and power signals.">
     <div className="overflow-auto rounded-2xl border border-white/10">
       <table className="min-w-full text-left text-sm">
-        <thead className="bg-slate-950/90 text-slate-400">
+        <thead className="bg-neutral-950/90 text-zinc-400">
           <tr>
             <th className="px-3 py-3">Camera</th>
             <th className="px-3 py-3">Last Seen</th>
@@ -21,7 +21,7 @@ export const CameraHealthTable = ({ rows }: { rows: CameraHealthRow[] }) => (
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={row.cameraName} className="border-t border-white/5 text-slate-200">
+            <tr key={row.cameraName} className="border-t border-white/5 text-zinc-200">
               <td className="px-3 py-3 font-medium">{row.cameraName}</td>
               <td className="px-3 py-3">{formatEventTimestamp(row.lastSeen)}</td>
               <td className="px-3 py-3">{formatNumber(row.totalEvents)}</td>
@@ -32,7 +32,7 @@ export const CameraHealthTable = ({ rows }: { rows: CameraHealthRow[] }) => (
               <td className="px-3 py-3">
                 <div className="space-y-2">
                   <StatusBadge status={row.status} />
-                  {row.alertReason ? <div className="text-xs text-slate-400">{row.alertReason}</div> : null}
+                  {row.alertReason ? <div className="text-xs text-zinc-400">{row.alertReason}</div> : null}
                 </div>
               </td>
             </tr>

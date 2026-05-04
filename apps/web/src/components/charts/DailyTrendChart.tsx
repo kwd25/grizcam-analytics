@@ -19,7 +19,7 @@ export const DailyTrendChart = ({ data, onSelectDate }: DailyTrendChartProps) =>
     }, new Map<string, Record<string, number | string>>()).values()
   );
 
-  const palette = ["#73e0ae", "#59a8ff", "#ffcf66", "#ff7c7c", "#b08cff"];
+  const palette = ["#d4d4d8", "#a1a1aa", "#808080", "#666666", "#525252"];
 
   return (
     <SectionCard title="Daily Activity Trend" subtitle="Click a day to open a detailed drilldown panel.">
@@ -28,16 +28,16 @@ export const DailyTrendChart = ({ data, onSelectDate }: DailyTrendChartProps) =>
           <AreaChart data={rows} onClick={(state) => state?.activeLabel && onSelectDate(String(state.activeLabel))}>
             <defs>
               <linearGradient id="activity-fill" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stopColor="#73e0ae" stopOpacity={0.4} />
-                <stop offset="100%" stopColor="#73e0ae" stopOpacity={0.02} />
+                <stop offset="0%" stopColor="#d4d4d8" stopOpacity={0.35} />
+                <stop offset="100%" stopColor="#d4d4d8" stopOpacity={0.02} />
               </linearGradient>
             </defs>
             <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
-            <XAxis dataKey="date" stroke="#8ea6b1" minTickGap={36} />
-            <YAxis stroke="#8ea6b1" />
-            <Tooltip contentStyle={{ background: "#102028", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16 }} />
+            <XAxis dataKey="date" stroke="#a1a1aa" minTickGap={36} />
+            <YAxis stroke="#a1a1aa" />
+            <Tooltip contentStyle={{ background: "#202020", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 16 }} />
             <Legend />
-            <Area type="monotone" dataKey="total" stroke="#73e0ae" fill="url(#activity-fill)" strokeWidth={2} name="All cameras" />
+            <Area type="monotone" dataKey="total" stroke="#e5e5e5" fill="url(#activity-fill)" strokeWidth={2} name="All cameras" />
             {cameraNames.slice(0, 5).map((cameraName, index) => (
               <Area
                 key={cameraName}

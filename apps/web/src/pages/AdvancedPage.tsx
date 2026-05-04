@@ -11,51 +11,51 @@ import { useDashboardFilters } from "../hooks/useDashboardFilters";
 import { useReportPrefetch } from "../hooks/useReportPrefetch";
 
 const QueryState = ({ error }: { error?: Error | null }) => (
-  <div className="panel rounded-3xl border border-white/8 bg-white/[0.03] px-4 py-10 text-center">
+  <div className="panel rounded-3xl border border-white/10 bg-white/[0.03] px-4 py-10 text-center">
     <div className="text-sm font-medium text-white">{error ? "This section is temporarily unavailable" : "Loading advanced section"}</div>
-    <div className="mt-2 text-sm text-slate-400">
+    <div className="mt-2 text-sm text-zinc-400">
       {error ? "The analytics endpoint returned an unexpected response. Try refreshing in a moment." : "Scoring predictions, novelty, and category shifts."}
     </div>
   </div>
 );
 
 const insightToneClasses = {
-  info: "border-sky-400/20 bg-sky-400/10 text-sky-100",
-  positive: "border-emerald-400/20 bg-emerald-400/10 text-emerald-100",
-  warning: "border-amber-400/20 bg-amber-400/10 text-amber-100",
-  alert: "border-rose-400/20 bg-rose-400/10 text-rose-100"
+  info: "border-white/15 bg-white/10 text-zinc-100",
+  positive: "border-white/15 bg-white/10 text-zinc-100",
+  warning: "border-stone-400/25 bg-stone-400/10 text-stone-100",
+  alert: "border-red-300/20 bg-red-300/10 text-red-100"
 } as const;
 
 const shiftCellClass = (value: number) => {
   if (value >= 15) {
-    return "bg-emerald-400/30 text-emerald-100";
+    return "bg-white/10 text-zinc-100";
   }
   if (value >= 5) {
-    return "bg-emerald-400/15 text-emerald-100";
+    return "bg-white/10 text-zinc-100";
   }
   if (value <= -15) {
-    return "bg-rose-400/30 text-rose-100";
+    return "bg-red-300/10 text-red-100";
   }
   if (value <= -5) {
-    return "bg-rose-400/15 text-rose-100";
+    return "bg-red-300/10 text-red-100";
   }
-  return "bg-white/5 text-slate-300";
+  return "bg-white/5 text-zinc-300";
 };
 
 const residualCellClass = (value: number) => {
   if (value >= 40) {
-    return "bg-emerald-400/35 text-emerald-100";
+    return "bg-white/10 text-zinc-100";
   }
   if (value >= 15) {
-    return "bg-emerald-400/20 text-emerald-100";
+    return "bg-white/10 text-zinc-100";
   }
   if (value <= -40) {
-    return "bg-rose-400/35 text-rose-100";
+    return "bg-red-300/10 text-red-100";
   }
   if (value <= -15) {
-    return "bg-rose-400/20 text-rose-100";
+    return "bg-red-300/10 text-red-100";
   }
-  return "bg-white/5 text-slate-300";
+  return "bg-white/5 text-zinc-300";
 };
 
 export const AdvancedPage = () => {
@@ -105,11 +105,11 @@ export const AdvancedPage = () => {
                 <div className="grid min-w-max gap-2 text-xs" style={{ gridTemplateColumns: `220px repeat(${forecastDateColumns.length || 1}, minmax(74px, 1fr))` }}>
                   <div />
                   {forecastDateColumns.map((date) => (
-                    <div key={date} className="px-1 text-center text-slate-400">{date.slice(5)}</div>
+                    <div key={date} className="px-1 text-center text-zinc-400">{date.slice(5)}</div>
                   ))}
                   {forecastLeaderNames.map((cameraName) => (
                     <div key={cameraName} className="contents">
-                      <div className="pr-3 text-sm font-medium text-slate-300">{cameraName}</div>
+                      <div className="pr-3 text-sm font-medium text-zinc-300">{cameraName}</div>
                       {forecastDateColumns.map((date) => {
                         const item = forecastResidualLookup.get(`${cameraName}|||${date}`);
                         return (
@@ -135,7 +135,7 @@ export const AdvancedPage = () => {
             <SectionCard title="Camera Forecast Leaderboard" subtitle="Largest current-window misses ranked by deviation from each camera's trailing 7-day expectation.">
               <div className="overflow-auto rounded-2xl border border-white/10">
                 <table className="min-w-full text-left text-sm">
-                  <thead className="bg-slate-950/90 text-slate-400">
+                  <thead className="bg-neutral-950/90 text-zinc-400">
                     <tr>
                       <th className="px-3 py-3">Camera</th>
                       <th className="px-3 py-3">Actual</th>
@@ -146,12 +146,12 @@ export const AdvancedPage = () => {
                   </thead>
                   <tbody>
                     {analytics.cameraForecastLeaders.map((row) => (
-                      <tr key={row.cameraName} className="border-t border-white/5 text-slate-200">
+                      <tr key={row.cameraName} className="border-t border-white/5 text-zinc-200">
                         <td className="px-3 py-3 font-medium">{row.cameraName}</td>
                         <td className="px-3 py-3">{formatNumber(row.actual)}</td>
                         <td className="px-3 py-3">{formatNumber(row.expected, 1)}</td>
-                        <td className={`px-3 py-3 ${row.delta >= 0 ? "text-emerald-300" : "text-rose-300"}`}>{formatSignedNumber(row.delta, 1)}</td>
-                        <td className={`px-3 py-3 ${row.residualPct >= 0 ? "text-emerald-300" : "text-rose-300"}`}>{formatSignedNumber(row.residualPct, 1)}%</td>
+                        <td className={`px-3 py-3 ${row.delta >= 0 ? "text-zinc-100" : "text-red-200"}`}>{formatSignedNumber(row.delta, 1)}</td>
+                        <td className={`px-3 py-3 ${row.residualPct >= 0 ? "text-zinc-100" : "text-red-200"}`}>{formatSignedNumber(row.residualPct, 1)}%</td>
                       </tr>
                     ))}
                   </tbody>
@@ -164,7 +164,7 @@ export const AdvancedPage = () => {
             <SectionCard title="Novel Events" subtitle="Rare camera-category-time combinations weighted toward uncommon pairings and baseline deviation.">
               <div className="overflow-auto rounded-2xl border border-white/10">
                 <table className="min-w-full text-left text-sm">
-                  <thead className="bg-slate-950/90 text-slate-400">
+                  <thead className="bg-neutral-950/90 text-zinc-400">
                     <tr>
                       <th className="px-3 py-3">Pattern</th>
                       <th className="px-3 py-3">Novelty</th>
@@ -175,15 +175,15 @@ export const AdvancedPage = () => {
                   </thead>
                   <tbody>
                     {analytics.novelEvents.map((row) => (
-                      <tr key={`${row.cameraName}-${row.category}-${row.hour}`} className="border-t border-white/5 text-slate-200">
+                      <tr key={`${row.cameraName}-${row.category}-${row.hour}`} className="border-t border-white/5 text-zinc-200">
                         <td className="px-3 py-3">
                           <div className="font-medium">{row.cameraName}</div>
-                          <div className="mt-1 text-xs text-slate-400">{titleCase(row.category)} at {String(row.hour).padStart(2, "0")}:00</div>
+                          <div className="mt-1 text-xs text-zinc-400">{titleCase(row.category)} at {String(row.hour).padStart(2, "0")}:00</div>
                         </td>
-                        <td className="px-3 py-3 text-amber-300">{formatNumber(row.noveltyScore, 1)}</td>
+                        <td className="px-3 py-3 text-stone-200">{formatNumber(row.noveltyScore, 1)}</td>
                         <td className="px-3 py-3">{formatNumber(row.currentCount)}</td>
                         <td className="px-3 py-3">{formatNumber(row.baselineDailyAvg, 1)}/day</td>
-                        <td className={`px-3 py-3 ${row.shiftPct >= 0 ? "text-emerald-300" : "text-rose-300"}`}>{formatSignedNumber(row.shiftPct, 1)} pts</td>
+                        <td className={`px-3 py-3 ${row.shiftPct >= 0 ? "text-zinc-100" : "text-red-200"}`}>{formatSignedNumber(row.shiftPct, 1)} pts</td>
                       </tr>
                     ))}
                   </tbody>
@@ -191,7 +191,7 @@ export const AdvancedPage = () => {
               </div>
               <div className="mt-4 space-y-2">
                 {analytics.novelEvents.slice(0, 3).map((row) => (
-                  <div key={`${row.cameraName}-${row.category}-${row.hour}-detail`} className="rounded-2xl bg-white/5 px-4 py-3 text-sm text-slate-300">
+                  <div key={`${row.cameraName}-${row.category}-${row.hour}-detail`} className="rounded-2xl bg-white/5 px-4 py-3 text-sm text-zinc-300">
                     {row.narrative}
                   </div>
                 ))}
@@ -205,17 +205,17 @@ export const AdvancedPage = () => {
                 <ResponsiveContainer>
                   <BarChart data={noveltyVolumeData}>
                     <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
-                    <XAxis dataKey="date" stroke="#8ea6b1" minTickGap={32} />
-                    <YAxis stroke="#8ea6b1" />
+                    <XAxis dataKey="date" stroke="#a1a1aa" minTickGap={32} />
+                    <YAxis stroke="#a1a1aa" />
                     <Tooltip
-                      contentStyle={{ background: "#102028", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16 }}
+                      contentStyle={{ background: "#202020", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 16 }}
                       formatter={(value: unknown) => (typeof value === "number" ? formatNumber(value, 0) : String(value ?? ""))}
                       labelFormatter={(_, payload) => {
                         const item = payload?.[0]?.payload;
                         return item ? `${item.date} • ${item.topDriver ?? "No dominant driver"} • ${item.dominantCategory ? titleCase(item.dominantCategory) : "No dominant category"}` : "";
                       }}
                     />
-                    <Bar dataKey="noveltyCount" fill="#ffcf66" radius={[8, 8, 0, 0]} name="Novelty count" />
+                    <Bar dataKey="noveltyCount" fill="#b8b8b8" radius={[8, 8, 0, 0]} name="Novelty count" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -228,11 +228,11 @@ export const AdvancedPage = () => {
                 <div className="grid min-w-max gap-2 text-xs" style={{ gridTemplateColumns: `220px repeat(${shiftColumns.length || 1}, minmax(92px, 1fr))` }}>
                   <div />
                   {shiftColumns.map((column) => (
-                    <div key={column} className="px-1 text-center text-slate-400">{titleCase(column)}</div>
+                    <div key={column} className="px-1 text-center text-zinc-400">{titleCase(column)}</div>
                   ))}
                   {shiftCameraRows.map((cameraName) => (
                     <div key={cameraName} className="contents">
-                      <div className="pr-3 text-sm font-medium text-slate-300">{cameraName}</div>
+                      <div className="pr-3 text-sm font-medium text-zinc-300">{cameraName}</div>
                       {shiftColumns.map((column) => {
                         const item = shiftLookup.get(`${cameraName}|||${column}`);
                         return (

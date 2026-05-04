@@ -10,18 +10,18 @@ export const DayDetailPanel = ({ selectedDate, data }: { selectedDate?: string; 
     className="h-full"
   >
     {!selectedDate || !data ? (
-      <div className="rounded-2xl border border-dashed border-white/10 px-4 py-10 text-sm text-slate-400">
+      <div className="rounded-2xl border border-dashed border-white/10 px-4 py-10 text-sm text-zinc-400">
         No day selected yet.
       </div>
     ) : (
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-2xl bg-white/5 p-4">
-            <div className="text-xs uppercase tracking-[0.18em] text-slate-400">Event Groups</div>
+            <div className="text-xs uppercase tracking-[0.18em] text-zinc-400">Event Groups</div>
             <div className="mt-2 text-2xl font-semibold text-white">{formatNumber(data.totalEventGroups)}</div>
           </div>
           <div className="rounded-2xl bg-white/5 p-4">
-            <div className="text-xs uppercase tracking-[0.18em] text-slate-400">Raw Rows</div>
+            <div className="text-xs uppercase tracking-[0.18em] text-zinc-400">Raw Rows</div>
             <div className="mt-2 text-2xl font-semibold text-white">{formatNumber(data.totalRawRows)}</div>
           </div>
         </div>
@@ -30,20 +30,20 @@ export const DayDetailPanel = ({ selectedDate, data }: { selectedDate?: string; 
           <ResponsiveContainer>
             <BarChart data={data.hourlyDistribution}>
               <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
-              <XAxis dataKey="hour" stroke="#8ea6b1" />
-              <YAxis stroke="#8ea6b1" />
-              <Tooltip contentStyle={{ background: "#102028", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16 }} />
-              <Bar dataKey="uniqueEventGroups" fill="#73e0ae" />
+              <XAxis dataKey="hour" stroke="#a1a1aa" />
+              <YAxis stroke="#a1a1aa" />
+              <Tooltip contentStyle={{ background: "#202020", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 16 }} />
+              <Bar dataKey="uniqueEventGroups" fill="#d4d4d8" />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <div className="rounded-2xl bg-white/5 p-4">
-            <div className="mb-3 text-xs uppercase tracking-[0.18em] text-slate-400">Subject Breakdown</div>
+            <div className="mb-3 text-xs uppercase tracking-[0.18em] text-zinc-400">Subject Breakdown</div>
             <div className="space-y-2 text-sm">
               {data.subjectBreakdown.slice(0, 8).map((item) => (
-                <div key={item.subjectClass} className="flex items-center justify-between text-slate-200">
+                <div key={item.subjectClass} className="flex items-center justify-between text-zinc-200">
                   <span>{titleCase(item.subjectClass)}</span>
                   <span>{formatNumber(item.uniqueEventGroups)}</span>
                 </div>
@@ -51,10 +51,10 @@ export const DayDetailPanel = ({ selectedDate, data }: { selectedDate?: string; 
             </div>
           </div>
           <div className="rounded-2xl bg-white/5 p-4">
-            <div className="mb-3 text-xs uppercase tracking-[0.18em] text-slate-400">Camera Breakdown</div>
+            <div className="mb-3 text-xs uppercase tracking-[0.18em] text-zinc-400">Camera Breakdown</div>
             <div className="space-y-2 text-sm">
               {data.cameraBreakdown.map((item) => (
-                <div key={item.cameraName} className="flex items-center justify-between text-slate-200">
+                <div key={item.cameraName} className="flex items-center justify-between text-zinc-200">
                   <span>{item.cameraName}</span>
                   <span>{formatNumber(item.uniqueEventGroups)}</span>
                 </div>
@@ -64,10 +64,10 @@ export const DayDetailPanel = ({ selectedDate, data }: { selectedDate?: string; 
         </div>
 
         <div className="rounded-2xl bg-white/5 p-4">
-          <div className="mb-3 text-xs uppercase tracking-[0.18em] text-slate-400">Detailed Event List</div>
+          <div className="mb-3 text-xs uppercase tracking-[0.18em] text-zinc-400">Detailed Event List</div>
           <div className="max-h-80 overflow-auto">
             <table className="min-w-full text-left text-sm">
-              <thead className="sticky top-0 bg-slate-950/90 text-slate-400">
+              <thead className="sticky top-0 bg-neutral-950/90 text-zinc-400">
                 <tr>
                   <th className="px-2 py-2">Timestamp</th>
                   <th className="px-2 py-2">Camera</th>
@@ -77,11 +77,11 @@ export const DayDetailPanel = ({ selectedDate, data }: { selectedDate?: string; 
               </thead>
               <tbody>
                 {data.events.map((event) => (
-                  <tr key={event.id} className="border-t border-white/5 align-top text-slate-200">
+                  <tr key={event.id} className="border-t border-white/5 align-top text-zinc-200">
                     <td className="px-2 py-2">{formatEventTimestamp(event.timestamp)}</td>
                     <td className="px-2 py-2">{event.cameraName}</td>
                     <td className="px-2 py-2">{titleCase(event.subjectClass ?? "unknown")}</td>
-                    <td className="px-2 py-2 text-slate-400">{event.summary ?? event.analysisSummary ?? event.analysisTitle ?? "No summary"}</td>
+                    <td className="px-2 py-2 text-zinc-400">{event.summary ?? event.analysisSummary ?? event.analysisTitle ?? "No summary"}</td>
                   </tr>
                 ))}
               </tbody>

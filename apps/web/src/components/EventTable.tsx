@@ -56,11 +56,11 @@ export const EventTable = ({ data, isLoading, query, onQueryChange, exportUrl }:
       subtitle="Server-side search, sorting, and pagination over event-level details."
       actions={
         api.exportsEnabled ? (
-          <a href={exportUrl} className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200 hover:bg-white/10">
+          <a href={exportUrl} className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-zinc-200 hover:bg-white/10">
             Export CSV
           </a>
         ) : (
-          <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-500">
+          <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-zinc-500">
             CSV export disabled in demo
           </div>
         )
@@ -72,14 +72,14 @@ export const EventTable = ({ data, isLoading, query, onQueryChange, exportUrl }:
           value={searchDraft}
           onChange={(event) => setSearchDraft(event.target.value)}
           placeholder="Search analysis title or summary"
-          className="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-slate-100 outline-none focus:border-emerald-400 md:max-w-md"
+          className="w-full rounded-2xl border border-white/10 bg-neutral-950/60 px-4 py-3 text-sm text-zinc-100 outline-none focus:border-zinc-300 md:max-w-md"
         />
-        <div className="text-sm text-slate-400">{data ? `${formatNumber(data.total)} matching rows` : "Loading rows..."}</div>
+        <div className="text-sm text-zinc-400">{data ? `${formatNumber(data.total)} matching rows` : "Loading rows..."}</div>
       </div>
 
       <div className="overflow-auto rounded-2xl border border-white/10">
         <table className="min-w-full text-left text-sm">
-          <thead className="bg-slate-950/90 text-slate-400">
+          <thead className="bg-neutral-950/90 text-zinc-400">
             <tr>
               {columns.map((column) => (
                 <th key={column.key} className="px-3 py-3">
@@ -95,7 +95,7 @@ export const EventTable = ({ data, isLoading, query, onQueryChange, exportUrl }:
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={columns.length + 2} className="px-4 py-10 text-center text-slate-400">
+                <td colSpan={columns.length + 2} className="px-4 py-10 text-center text-zinc-400">
                   Loading events…
                 </td>
               </tr>
@@ -103,7 +103,7 @@ export const EventTable = ({ data, isLoading, query, onQueryChange, exportUrl }:
               data?.rows.map((row) => (
                 <Fragment key={row.id}>
                   <tr
-                    className="cursor-pointer border-t border-white/5 text-slate-200 hover:bg-white/5"
+                    className="cursor-pointer border-t border-white/5 text-zinc-200 hover:bg-white/5"
                     onClick={() => setExpandedRowId(expandedRowId === row.id ? null : row.id)}
                   >
                     <td className="px-3 py-3">{formatEventTimestamp(row.timestamp)}</td>
@@ -116,37 +116,37 @@ export const EventTable = ({ data, isLoading, query, onQueryChange, exportUrl }:
                     <td className="px-3 py-3">{row.temperature ?? "—"}</td>
                     <td className="px-3 py-3">{row.heatLevel ?? "—"}</td>
                     <td className="px-3 py-3"><StatusBadge status={row.operationalStatus ?? "healthy"} /></td>
-                    <td className="px-3 py-3 text-slate-400">{row.summary ?? row.analysisTitle ?? row.analysisSummary ?? "No narrative"}</td>
+                    <td className="px-3 py-3 text-zinc-400">{row.summary ?? row.analysisTitle ?? row.analysisSummary ?? "No narrative"}</td>
                   </tr>
                   {expandedRowId === row.id ? (
                     <tr className="border-t border-white/5 bg-white/[0.03]">
                       <td colSpan={columns.length + 2} className="px-4 py-4">
                         <div className="grid gap-4 md:grid-cols-2">
-                          <div className="space-y-2 text-sm text-slate-300">
-                            <div><span className="text-slate-500">MAC:</span> {row.mac}</div>
-                            <div><span className="text-slate-500">Sensor:</span> {row.sensor}</div>
-                            <div><span className="text-slate-500">Time bucket:</span> {titleCase(row.timeOfDayBucket ?? row.daypart ?? "unknown")}</div>
-                            <div><span className="text-slate-500">Battery:</span> {row.batteryPercentage ?? "—"}</div>
-                            <div><span className="text-slate-500">Voltage:</span> {row.voltage ?? "—"}</div>
-                            <div><span className="text-slate-500">Upload lag:</span> {formatDurationShort(row.uploadLagSeconds)}</div>
-                            <div><span className="text-slate-500">Processing lag:</span> {formatDurationShort(row.processingLagSeconds)}</div>
-                            <div><span className="text-slate-500">Event group size:</span> {formatNumber(row.eventGroupSize)}</div>
-                            <div><span className="text-slate-500">Filename:</span> {row.filename ?? "—"}</div>
+                          <div className="space-y-2 text-sm text-zinc-300">
+                            <div><span className="text-zinc-500">MAC:</span> {row.mac}</div>
+                            <div><span className="text-zinc-500">Sensor:</span> {row.sensor}</div>
+                            <div><span className="text-zinc-500">Time bucket:</span> {titleCase(row.timeOfDayBucket ?? row.daypart ?? "unknown")}</div>
+                            <div><span className="text-zinc-500">Battery:</span> {row.batteryPercentage ?? "—"}</div>
+                            <div><span className="text-zinc-500">Voltage:</span> {row.voltage ?? "—"}</div>
+                            <div><span className="text-zinc-500">Upload lag:</span> {formatDurationShort(row.uploadLagSeconds)}</div>
+                            <div><span className="text-zinc-500">Processing lag:</span> {formatDurationShort(row.processingLagSeconds)}</div>
+                            <div><span className="text-zinc-500">Event group size:</span> {formatNumber(row.eventGroupSize)}</div>
+                            <div><span className="text-zinc-500">Filename:</span> {row.filename ?? "—"}</div>
                           </div>
-                          <div className="space-y-2 text-sm text-slate-300">
-                            <div className="text-slate-500">Summary</div>
+                          <div className="space-y-2 text-sm text-zinc-300">
+                            <div className="text-zinc-500">Summary</div>
                             <div>{row.summary ?? row.analysisSummary ?? "No analysis summary available."}</div>
                             {row.dataQualityFlags?.length ? (
                               <div className="flex flex-wrap gap-2 pt-2">
                                 {row.dataQualityFlags.map((flag) => (
-                                  <span key={flag} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-slate-300">
+                                  <span key={flag} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-zinc-300">
                                     {titleCase(flag)}
                                   </span>
                                 ))}
                               </div>
                             ) : null}
                             {row.imageBlobUrl ? (
-                              <a href={row.imageBlobUrl} target="_blank" rel="noreferrer" className="inline-block text-emerald-300 hover:text-emerald-200">
+                              <a href={row.imageBlobUrl} target="_blank" rel="noreferrer" className="inline-block text-zinc-100 hover:text-zinc-100">
                                 Open image blob
                               </a>
                             ) : null}
@@ -163,21 +163,21 @@ export const EventTable = ({ data, isLoading, query, onQueryChange, exportUrl }:
       </div>
 
       <div className="mt-4 flex items-center justify-between gap-3">
-        <div className="text-sm text-slate-400">
+        <div className="text-sm text-zinc-400">
           Page {query.page} of {totalPages}
         </div>
         <div className="flex gap-2">
           <button
             onClick={() => onQueryChange({ page: Math.max(1, query.page - 1) })}
             disabled={query.page <= 1}
-            className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200 disabled:cursor-not-allowed disabled:opacity-40"
+            className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-zinc-200 disabled:cursor-not-allowed disabled:opacity-40"
           >
             Previous
           </button>
           <button
             onClick={() => onQueryChange({ page: Math.min(totalPages, query.page + 1) })}
             disabled={query.page >= totalPages}
-            className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200 disabled:cursor-not-allowed disabled:opacity-40"
+            className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-zinc-200 disabled:cursor-not-allowed disabled:opacity-40"
           >
             Next
           </button>

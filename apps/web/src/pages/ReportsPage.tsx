@@ -12,12 +12,12 @@ import { classNames, formatDurationShort, formatNullableNumber, formatNumber, ti
 import { useDashboardFilters } from "../hooks/useDashboardFilters";
 
 const statusPillClass: Record<ReportViewStatus, string> = {
-  idle: "border-white/10 bg-white/5 text-slate-200",
-  ready: "border-emerald-400/20 bg-emerald-400/10 text-emerald-100",
-  generating: "border-sky-400/20 bg-sky-400/10 text-sky-100",
-  stale: "border-amber-400/20 bg-amber-400/10 text-amber-100",
-  error: "border-rose-400/20 bg-rose-400/10 text-rose-100",
-  disabled: "border-slate-400/20 bg-slate-400/10 text-slate-200"
+  idle: "border-white/10 bg-white/5 text-zinc-200",
+  ready: "border-white/15 bg-white/10 text-zinc-100",
+  generating: "border-white/15 bg-white/10 text-zinc-100",
+  stale: "border-stone-400/25 bg-stone-400/10 text-stone-100",
+  error: "border-red-300/20 bg-red-300/10 text-red-100",
+  disabled: "border-slate-400/20 bg-slate-400/10 text-zinc-200"
 };
 
 const phaseLabel: Record<ReportPhase, string> = {
@@ -43,15 +43,15 @@ const phaseDescription: Record<ReportPhase, string> = {
 };
 
 const QueryState = ({ title, detail, action }: { title: string; detail: string; action?: ReactNode }) => (
-  <div className="panel rounded-3xl border border-white/8 bg-white/[0.03] px-4 py-10 text-center">
+  <div className="panel rounded-3xl border border-white/10 bg-white/[0.03] px-4 py-10 text-center">
     <div className="text-sm font-medium text-white">{title}</div>
-    <div className="mt-2 text-sm text-slate-400">{detail}</div>
+    <div className="mt-2 text-sm text-zinc-400">{detail}</div>
     {action ? <div className="mt-4">{action}</div> : null}
   </div>
 );
 
 const actionButtonClass =
-  "rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-medium text-slate-100 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60";
+  "rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-medium text-zinc-100 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60";
 
 export const ReportsPage = () => {
   const { filters, patchFilters, resetFilters } = useDashboardFilters();
@@ -182,13 +182,13 @@ export const ReportsPage = () => {
       aside={<FilterBar filters={filters} options={optionsQuery.data} onChange={patchFilters} onReset={resetFilters} />}
     >
       {hasStorageWarning ? (
-        <div className="rounded-3xl border border-sky-400/20 bg-sky-400/10 px-4 py-3 text-sm text-sky-100">
+        <div className="rounded-3xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-zinc-100">
           Persistent report storage is unavailable. {storageWarningDetail} Manual generation will use the loaded analytics inputs without waiting on storage.
         </div>
       ) : null}
 
       {healthQuery.data && !healthQuery.data.openRouterConfigured ? (
-        <div className="rounded-3xl border border-amber-400/20 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">
+        <div className="rounded-3xl border border-stone-400/25 bg-stone-400/10 px-4 py-3 text-sm text-stone-100">
           Report generation is disabled because `OPENROUTER_API_KEY` is not configured on the server.
         </div>
       ) : null}
@@ -218,7 +218,7 @@ export const ReportsPage = () => {
                 <div className={classNames("rounded-2xl border px-3 py-1.5 text-xs font-medium uppercase tracking-[0.14em]", statusPillClass[visibleStatus])}>
                   {visibleStatus}
                 </div>
-                <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium uppercase tracking-[0.14em] text-slate-200">
+                <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium uppercase tracking-[0.14em] text-zinc-200">
                   {phaseLabel[visiblePhase]}
                 </div>
                 <button type="button" className={actionButtonClass} onClick={() => generateMutation.mutate()} disabled={!canGenerate}>
@@ -230,7 +230,7 @@ export const ReportsPage = () => {
             <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
               <div className="space-y-3">
                 {generatedBriefing.executive_summary.map((item) => (
-                  <div key={item} className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm leading-6 text-slate-200">
+                  <div key={item} className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm leading-6 text-zinc-200">
                     {item}
                   </div>
                 ))}
@@ -239,18 +239,18 @@ export const ReportsPage = () => {
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
                 {(snapshot?.overviewMetrics ?? []).slice(0, 4).map((metric) => (
                   <div key={metric.label} className="rounded-2xl bg-white/5 p-4">
-                    <div className="text-xs uppercase tracking-[0.16em] text-slate-400">{metric.label}</div>
+                    <div className="text-xs uppercase tracking-[0.16em] text-zinc-400">{metric.label}</div>
                     <div className="mt-3 text-3xl font-semibold text-white">
                       {metric.value === null ? "N/A" : `${formatNumber(metric.value, metric.unit === "%" ? 1 : 0)}${metric.unit ?? ""}`}
                     </div>
-                    {metric.note ? <div className="mt-2 text-sm text-slate-400">{metric.note}</div> : null}
+                    {metric.note ? <div className="mt-2 text-sm text-zinc-400">{metric.note}</div> : null}
                   </div>
                 ))}
               </div>
             </div>
 
             {visibleReason && visibleStatus === "error" ? (
-              <div className="mt-4 rounded-2xl border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm text-rose-100">
+              <div className="mt-4 rounded-2xl border border-red-300/20 bg-red-300/10 px-4 py-3 text-sm text-red-100">
                 {visibleReason}
               </div>
             ) : null}
@@ -263,16 +263,16 @@ export const ReportsPage = () => {
                   <div key={finding.title} className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4">
                     <div className="flex flex-wrap items-center gap-2">
                       <div className="text-sm font-semibold text-white">{finding.title}</div>
-                      <div className="rounded-full border border-white/10 px-2 py-0.5 text-[11px] uppercase tracking-[0.14em] text-slate-300">
+                      <div className="rounded-full border border-white/10 px-2 py-0.5 text-[11px] uppercase tracking-[0.14em] text-zinc-300">
                         {finding.confidence} confidence
                       </div>
                     </div>
-                    <div className="mt-3 space-y-2 text-sm text-slate-300">
+                    <div className="mt-3 space-y-2 text-sm text-zinc-300">
                       {finding.evidence.map((item) => (
                         <div key={item} className="rounded-2xl bg-white/5 px-3 py-2">{item}</div>
                       ))}
                     </div>
-                    <div className="mt-3 text-sm text-emerald-200">Actionability: {finding.actionability}</div>
+                    <div className="mt-3 text-sm text-zinc-100">Actionability: {finding.actionability}</div>
                   </div>
                 ))}
               </div>
@@ -283,12 +283,12 @@ export const ReportsPage = () => {
                 {generatedBriefing.recommended_actions.map((item) => (
                   <div key={`${item.priority}-${item.action}`} className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-emerald-400/15 text-sm font-semibold text-emerald-100">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-white/10 text-sm font-semibold text-zinc-100">
                         P{item.priority}
                       </div>
                       <div className="text-sm font-semibold text-white">{item.action}</div>
                     </div>
-                    <div className="mt-3 text-sm leading-6 text-slate-300">{item.why}</div>
+                    <div className="mt-3 text-sm leading-6 text-zinc-300">{item.why}</div>
                   </div>
                 ))}
               </div>
@@ -302,12 +302,12 @@ export const ReportsPage = () => {
                   generatedBriefing.risks_or_watchouts.map((item) => (
                     <div key={item.title} className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4">
                       <div className="text-sm font-semibold text-white">{item.title}</div>
-                      <div className="mt-2 text-sm leading-6 text-slate-300">{item.impact}</div>
-                      <div className="mt-3 text-sm text-amber-200">Follow-up: {item.suggested_followup}</div>
+                      <div className="mt-2 text-sm leading-6 text-zinc-300">{item.impact}</div>
+                      <div className="mt-3 text-sm text-stone-200">Follow-up: {item.suggested_followup}</div>
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-2xl bg-white/5 px-4 py-4 text-sm text-slate-400">No additional watchouts were elevated for this slice beyond the main findings.</div>
+                  <div className="rounded-2xl bg-white/5 px-4 py-4 text-sm text-zinc-400">No additional watchouts were elevated for this slice beyond the main findings.</div>
                 )}
               </div>
             </SectionCard>
@@ -316,12 +316,12 @@ export const ReportsPage = () => {
               <div className="space-y-3">
                 {generatedBriefing.open_questions.length > 0 ? (
                   generatedBriefing.open_questions.map((item) => (
-                    <div key={item} className="rounded-2xl bg-white/5 px-4 py-3 text-sm leading-6 text-slate-300">
+                    <div key={item} className="rounded-2xl bg-white/5 px-4 py-3 text-sm leading-6 text-zinc-300">
                       {item}
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-2xl bg-white/5 px-4 py-4 text-sm text-slate-400">No open questions were called out in the latest briefing.</div>
+                  <div className="rounded-2xl bg-white/5 px-4 py-4 text-sm text-zinc-400">No open questions were called out in the latest briefing.</div>
                 )}
               </div>
             </SectionCard>
@@ -346,19 +346,19 @@ export const ReportsPage = () => {
       <SectionCard title="Generation Status" subtitle="Current analytics input and report-generation diagnostics.">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-2xl bg-white/5 p-4">
-            <div className="text-xs uppercase tracking-[0.16em] text-slate-400">Status</div>
+            <div className="text-xs uppercase tracking-[0.16em] text-zinc-400">Status</div>
             <div className="mt-2 text-sm text-white">{titleCase(visibleStatus)}</div>
           </div>
           <div className="rounded-2xl bg-white/5 p-4">
-            <div className="text-xs uppercase tracking-[0.16em] text-slate-400">Phase</div>
+            <div className="text-xs uppercase tracking-[0.16em] text-zinc-400">Phase</div>
             <div className="mt-2 text-sm text-white">{phaseLabel[visiblePhase]}</div>
           </div>
           <div className="rounded-2xl bg-white/5 p-4">
-            <div className="text-xs uppercase tracking-[0.16em] text-slate-400">Reports Cache Key</div>
+            <div className="text-xs uppercase tracking-[0.16em] text-zinc-400">Reports Cache Key</div>
             <div className="mt-2 text-sm text-white">{generatedReport?.snapshotHash ? `${generatedReport.snapshotHash.slice(0, 12)}…` : "Not available yet"}</div>
           </div>
           <div className="rounded-2xl bg-white/5 p-4">
-            <div className="text-xs uppercase tracking-[0.16em] text-slate-400">Latest Error</div>
+            <div className="text-xs uppercase tracking-[0.16em] text-zinc-400">Latest Error</div>
             <div className="mt-2 text-sm text-white">{generatedReport?.debug?.lastErrorMessage ?? visibleReason ?? "None"}</div>
           </div>
         </div>
@@ -366,11 +366,11 @@ export const ReportsPage = () => {
         {visibleRequestId || visibleErrorCode ? (
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-              <div className="text-xs uppercase tracking-[0.16em] text-slate-400">Request ID</div>
+              <div className="text-xs uppercase tracking-[0.16em] text-zinc-400">Request ID</div>
               <div className="mt-2 text-sm text-white">{visibleRequestId ?? "Not available"}</div>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-              <div className="text-xs uppercase tracking-[0.16em] text-slate-400">Error Code</div>
+              <div className="text-xs uppercase tracking-[0.16em] text-zinc-400">Error Code</div>
               <div className="mt-2 text-sm text-white">{visibleErrorCode ?? "None"}</div>
             </div>
           </div>
@@ -380,7 +380,7 @@ export const ReportsPage = () => {
           <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             {diagnosticEntries.map(({ label, value, unit }) => (
               <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                <div className="text-xs uppercase tracking-[0.16em] text-slate-400">{label}</div>
+                <div className="text-xs uppercase tracking-[0.16em] text-zinc-400">{label}</div>
                 <div className="mt-2 text-lg font-semibold text-white">
                   {formatNumber(value, 0)}
                   {unit === "ms" ? "ms" : ` ${unit}`}
@@ -396,19 +396,19 @@ export const ReportsPage = () => {
           <SectionCard title="Snapshot Context" subtitle="Compact analytics bundle that will be sent to the report model.">
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               <div className="rounded-2xl bg-white/5 p-4">
-                <div className="text-xs uppercase tracking-[0.16em] text-slate-400">Date Range</div>
+                <div className="text-xs uppercase tracking-[0.16em] text-zinc-400">Date Range</div>
                 <div className="mt-2 text-sm text-white">{snapshot.dateRange.startDate} to {snapshot.dateRange.endDate}</div>
               </div>
               <div className="rounded-2xl bg-white/5 p-4">
-                <div className="text-xs uppercase tracking-[0.16em] text-slate-400">Camera Filter</div>
+                <div className="text-xs uppercase tracking-[0.16em] text-zinc-400">Camera Filter</div>
                 <div className="mt-2 text-sm text-white">{snapshot.filters.camera_name.length > 0 ? `${snapshot.filters.camera_name.length} selected` : "All cameras"}</div>
               </div>
               <div className="rounded-2xl bg-white/5 p-4">
-                <div className="text-xs uppercase tracking-[0.16em] text-slate-400">Average Voltage</div>
+                <div className="text-xs uppercase tracking-[0.16em] text-zinc-400">Average Voltage</div>
                 <div className="mt-2 text-sm text-white">{formatNullableNumber(snapshot.overviewMetrics.find((item) => item.label === "Avg voltage")?.value ?? null, 2, "v")}</div>
               </div>
               <div className="rounded-2xl bg-white/5 p-4">
-                <div className="text-xs uppercase tracking-[0.16em] text-slate-400">Avg Processing Lag</div>
+                <div className="text-xs uppercase tracking-[0.16em] text-zinc-400">Avg Processing Lag</div>
                 <div className="mt-2 text-sm text-white">
                   {formatDurationShort(snapshot.overviewMetrics.find((item) => item.label === "Avg processing lag")?.value ?? null)}
                 </div>
@@ -420,27 +420,27 @@ export const ReportsPage = () => {
             <SectionCard title="Overview Signals" subtitle="Summary inputs from the current Overview and Ops analytics state.">
               <div className="space-y-4">
                 <div>
-                  <div className="text-xs uppercase tracking-[0.16em] text-slate-400">Overview Highlights</div>
+                  <div className="text-xs uppercase tracking-[0.16em] text-zinc-400">Overview Highlights</div>
                   <div className="mt-2 space-y-2">
                     {snapshot.overviewHighlights.map((item) => (
                       <div key={item.name} className="rounded-2xl bg-white/5 px-3 py-3">
                         <div className="text-sm font-medium text-white">{item.name}</div>
-                        <div className="mt-2 text-sm text-slate-400">{item.detail}</div>
+                        <div className="mt-2 text-sm text-zinc-400">{item.detail}</div>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 <div>
-                  <div className="text-xs uppercase tracking-[0.16em] text-slate-400">Pipeline</div>
+                  <div className="text-xs uppercase tracking-[0.16em] text-zinc-400">Pipeline</div>
                   <div className="mt-2 grid gap-2 sm:grid-cols-2">
                     {snapshot.pipeline.map((item) => (
                       <div key={item.label} className="rounded-2xl bg-white/5 px-3 py-3">
                         <div className="text-sm font-medium text-white">{item.label}</div>
-                        <div className="mt-1 text-lg font-semibold text-slate-100">
+                        <div className="mt-1 text-lg font-semibold text-zinc-100">
                           {item.value === null ? "N/A" : `${formatNumber(item.value, item.unit === "%" ? 1 : 0)}${item.unit ?? ""}`}
                         </div>
-                        <div className="mt-1 text-xs text-slate-400">{item.note}</div>
+                        <div className="mt-1 text-xs text-zinc-400">{item.note}</div>
                       </div>
                     ))}
                   </div>
@@ -451,46 +451,46 @@ export const ReportsPage = () => {
             <SectionCard title="Advanced Signals" subtitle="Compact evidence selected for report generation, not raw chart dumps.">
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <div className="text-xs uppercase tracking-[0.16em] text-slate-400">Ops Highlights</div>
+                  <div className="text-xs uppercase tracking-[0.16em] text-zinc-400">Ops Highlights</div>
                   {snapshot.opsHighlights.map((item) => (
                     <div key={item.name} className="rounded-2xl bg-white/5 px-3 py-3">
                       <div className="flex items-center justify-between gap-3">
                         <div className="text-sm font-medium text-white">{item.name}</div>
-                        {item.status ? <div className="text-xs uppercase tracking-[0.14em] text-amber-200">{titleCase(item.status)}</div> : null}
+                        {item.status ? <div className="text-xs uppercase tracking-[0.14em] text-stone-200">{titleCase(item.status)}</div> : null}
                       </div>
-                      <div className="mt-2 text-sm text-slate-400">{item.detail}</div>
+                      <div className="mt-2 text-sm text-zinc-400">{item.detail}</div>
                     </div>
                   ))}
                 </div>
 
                 <div className="space-y-2">
-                  <div className="text-xs uppercase tracking-[0.16em] text-slate-400">Advanced Highlights</div>
+                  <div className="text-xs uppercase tracking-[0.16em] text-zinc-400">Advanced Highlights</div>
                   {snapshot.advancedHighlights.map((item) => (
                     <div key={item.name} className="rounded-2xl bg-white/5 px-3 py-3">
                       <div className="text-sm font-medium text-white">{item.name}</div>
-                      <div className="mt-2 text-sm text-slate-400">{item.detail}</div>
+                      <div className="mt-2 text-sm text-zinc-400">{item.detail}</div>
                     </div>
                   ))}
                 </div>
 
                 <div className="space-y-2">
-                  <div className="text-xs uppercase tracking-[0.16em] text-slate-400">Data Quality Caveats</div>
+                  <div className="text-xs uppercase tracking-[0.16em] text-zinc-400">Data Quality Caveats</div>
                   {(snapshot.dataQualityCaveats.length > 0 ? snapshot.dataQualityCaveats : ["No material data quality caveats were elevated for this slice."]).map((item) => (
-                    <div key={item} className="rounded-2xl bg-white/5 px-3 py-2 text-sm text-slate-300">{item}</div>
+                    <div key={item} className="rounded-2xl bg-white/5 px-3 py-2 text-sm text-zinc-300">{item}</div>
                   ))}
                 </div>
 
                 <div className="space-y-2">
-                  <div className="text-xs uppercase tracking-[0.16em] text-slate-400">Trend Notes</div>
+                  <div className="text-xs uppercase tracking-[0.16em] text-zinc-400">Trend Notes</div>
                   {snapshot.trends.map((trend) => (
                     <div key={trend.label} className="rounded-2xl bg-white/5 px-3 py-3">
                       <div className="flex items-center justify-between gap-3">
                         <div className="text-sm font-medium text-white">{trend.label}</div>
-                        <div className="text-sm font-semibold text-slate-200">
+                        <div className="text-sm font-semibold text-zinc-200">
                           {trend.deltaPct === null ? "N/A" : `${trend.deltaPct > 0 ? "+" : ""}${formatNumber(trend.deltaPct, 1)}%`}
                         </div>
                       </div>
-                      <div className="mt-2 text-sm text-slate-400">{trend.note}</div>
+                      <div className="mt-2 text-sm text-zinc-400">{trend.note}</div>
                     </div>
                   ))}
                 </div>

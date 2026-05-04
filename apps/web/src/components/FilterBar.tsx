@@ -17,12 +17,12 @@ type MultiSelectProps = {
 
 const MultiSelect = ({ label, values, options, onChange }: MultiSelectProps) => (
   <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
-    <div className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{label}</div>
+    <div className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-zinc-400">{label}</div>
     <div className="max-h-28 space-y-2 overflow-auto pr-1">
       {options.map((option) => {
         const checked = values.includes(option.value);
         return (
-          <label key={option.value} className="flex cursor-pointer items-center justify-between gap-3 rounded-xl px-2 py-1.5 text-sm text-slate-200 hover:bg-white/5">
+          <label key={option.value} className="flex cursor-pointer items-center justify-between gap-3 rounded-xl px-2 py-1.5 text-sm text-zinc-200 hover:bg-white/5">
             <span>{titleCase(option.label)}</span>
             <input
               type="checkbox"
@@ -30,7 +30,7 @@ const MultiSelect = ({ label, values, options, onChange }: MultiSelectProps) => 
               onChange={() =>
                 onChange(checked ? values.filter((value) => value !== option.value) : [...values, option.value])
               }
-              className="h-4 w-4 rounded border-white/20 bg-transparent text-emerald-400"
+              className="h-4 w-4 rounded border-white/20 bg-transparent text-zinc-200"
             />
           </label>
         );
@@ -51,7 +51,7 @@ const RangeInput = ({
   onChange: (next: { min?: number; max?: number }) => void;
 }) => (
   <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
-    <div className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">{label}</div>
+    <div className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-zinc-400">{label}</div>
     <div className="grid grid-cols-2 gap-2">
       <input
         type="number"
@@ -60,7 +60,7 @@ const RangeInput = ({
           onChange({ min: event.target.value === "" ? undefined : Number(event.target.value), max: maxValue })
         }
         placeholder="Min"
-        className="rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 outline-none focus:border-emerald-400"
+        className="rounded-xl border border-white/10 bg-neutral-950/60 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-zinc-300"
       />
       <input
         type="number"
@@ -69,7 +69,7 @@ const RangeInput = ({
           onChange({ min: minValue, max: event.target.value === "" ? undefined : Number(event.target.value) })
         }
         placeholder="Max"
-        className="rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 outline-none focus:border-emerald-400"
+        className="rounded-xl border border-white/10 bg-neutral-950/60 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-zinc-300"
       />
     </div>
   </div>
@@ -90,22 +90,22 @@ export const FilterBar = ({ filters, options, onChange, onReset }: FilterBarProp
       />
 
       <div className="grid grid-cols-2 gap-3">
-        <label className="rounded-2xl border border-white/10 bg-white/5 p-3 text-sm text-slate-200">
-          <div className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Start Date</div>
+        <label className="rounded-2xl border border-white/10 bg-white/5 p-3 text-sm text-zinc-200">
+          <div className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-zinc-400">Start Date</div>
           <input
             type="date"
             value={filters.start_date}
             onChange={(event) => onChange({ start_date: event.target.value })}
-            className="w-full rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-slate-100 outline-none focus:border-emerald-400"
+            className="w-full rounded-xl border border-white/10 bg-neutral-950/60 px-3 py-2 text-zinc-100 outline-none focus:border-zinc-300"
           />
         </label>
-        <label className="rounded-2xl border border-white/10 bg-white/5 p-3 text-sm text-slate-200">
-          <div className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">End Date</div>
+        <label className="rounded-2xl border border-white/10 bg-white/5 p-3 text-sm text-zinc-200">
+          <div className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-zinc-400">End Date</div>
           <input
             type="date"
             value={filters.end_date}
             onChange={(event) => onChange({ end_date: event.target.value })}
-            className="w-full rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-slate-100 outline-none focus:border-emerald-400"
+            className="w-full rounded-xl border border-white/10 bg-neutral-950/60 px-3 py-2 text-zinc-100 outline-none focus:border-zinc-300"
           />
         </label>
       </div>
@@ -152,7 +152,7 @@ export const FilterBar = ({ filters, options, onChange, onReset }: FilterBarProp
     <div className="mt-4 flex gap-2">
       <button
         onClick={onReset}
-        className="flex-1 rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-white/10"
+        className="flex-1 rounded-2xl border border-white/10 bg-neutral-950/60 px-4 py-3 text-sm font-medium text-zinc-200 transition hover:bg-white/10"
       >
         Reset Filters
       </button>

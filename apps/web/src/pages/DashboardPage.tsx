@@ -17,9 +17,9 @@ import { useDashboardFilters } from "../hooks/useDashboardFilters";
 import { useReportPrefetch } from "../hooks/useReportPrefetch";
 
 const QueryState = ({ error }: { error?: Error | null }) => (
-  <div className="panel rounded-3xl border border-white/8 bg-white/[0.03] px-4 py-10 text-center">
+  <div className="panel rounded-3xl border border-white/10 bg-white/[0.03] px-4 py-10 text-center">
     <div className="text-sm font-medium text-white">{error ? "This section is temporarily unavailable" : "Loading dashboard section"}</div>
-    <div className="mt-2 text-sm text-slate-400">
+    <div className="mt-2 text-sm text-zinc-400">
       {error ? "The dashboard hit an unexpected response. Try refreshing in a moment." : "Fetching classic analytics from the enriched synthetic dataset."}
     </div>
   </div>

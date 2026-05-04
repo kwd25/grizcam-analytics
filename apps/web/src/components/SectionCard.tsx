@@ -13,7 +13,7 @@ export const SectionCard = ({ title, subtitle, actions, className, contentClassN
     <div className="mb-4 flex shrink-0 items-start justify-between gap-4">
       <div>
         <h2 className="text-base font-semibold tracking-wide text-white">{title}</h2>
-        {subtitle ? <p className="mt-1 text-sm text-slate-400">{subtitle}</p> : null}
+        {subtitle ? <p className="mt-1 text-sm text-zinc-400">{subtitle}</p> : null}
       </div>
       {actions ? <div className="shrink-0">{actions}</div> : null}
     </div>

@@ -21,11 +21,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <BrowserRouter>
         <Suspense
           fallback={
-            <div className="min-h-screen px-4 py-6 text-slate-100">
+            <div className="min-h-screen px-4 py-6 text-zinc-100">
               <div className="mx-auto max-w-[1800px]">
                 <div className="panel rounded-[32px] px-5 py-10 text-center">
                   <div className="text-sm font-medium text-white">Loading dashboard…</div>
-                  <div className="mt-2 text-sm text-slate-400">Preparing the selected workspace.</div>
+                  <div className="mt-2 text-sm text-zinc-400">Preparing the selected workspace.</div>
                 </div>
               </div>
             </div>

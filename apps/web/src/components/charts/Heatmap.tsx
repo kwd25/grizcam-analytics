@@ -31,13 +31,13 @@ export const Heatmap = ({ title, subtitle, rows, columns, data, variant = "hour"
         <div className={`grid min-w-max gap-2 text-xs ${gridClass}`} style={style}>
           <div />
           {columns.map((column) => (
-            <div key={column} className="px-1 text-center text-slate-400">
+            <div key={column} className="px-1 text-center text-zinc-400">
               {variant === "hour" ? formatHourLabel(Number(column)) : titleCase(column)}
             </div>
           ))}
           {rows.map((row) => (
             <div key={row} className="contents">
-              <div key={`${row}-label`} className="pr-3 text-sm font-medium text-slate-300">
+              <div key={`${row}-label`} className="pr-3 text-sm font-medium text-zinc-300">
                 {row}
               </div>
               {columns.map((column) => {
@@ -47,10 +47,10 @@ export const Heatmap = ({ title, subtitle, rows, columns, data, variant = "hour"
                   <div
                     key={`${row}-${column}`}
                     className={classNames(
-                      "flex h-10 items-center justify-center rounded-xl border border-white/5 text-[11px] font-medium text-slate-100"
+                      "flex h-10 items-center justify-center rounded-xl border border-white/5 text-[11px] font-medium text-zinc-100"
                     )}
                     style={{
-                      backgroundColor: `rgba(115, 224, 174, ${0.08 + intensity * 0.7})`
+                      backgroundColor: `rgba(212, 212, 216, ${0.08 + intensity * 0.58})`
                     }}
                     title={`${row} • ${column}: ${formatNumber(value)}`}
                   >
