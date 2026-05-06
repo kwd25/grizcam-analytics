@@ -5,6 +5,7 @@ import helmet from "helmet";
 import { ZodError } from "zod";
 import { appConfig } from "./config.js";
 import { dashboardRouter } from "./routes/dashboard.js";
+import { embedRouter } from "./routes/embed.js";
 import { queryRouter } from "./routes/query.js";
 import { reportsRouter } from "./routes/reports.js";
 
@@ -53,6 +54,7 @@ export const createApp = () => {
   app.use(express.json({ limit: "100kb" }));
 
   app.use("/api", dashboardRouter);
+  app.use("/api/embed", embedRouter);
   app.use("/api/reports", reportsRouter);
   app.use("/api/query", queryRouter);
 
