@@ -1,5 +1,6 @@
 import type { PropsWithChildren, ReactNode } from "react";
 import { NavLink } from "react-router-dom";
+import { useEmbedSession } from "../lib/EmbedSessionProvider";
 import { appEnv } from "../lib/env";
 import { classNames } from "../lib/utils";
 
@@ -31,6 +32,9 @@ export const EmbedLayout = ({
   children
 }: EmbedLayoutProps) => {
   const brandLabel = appEnv.portalEmbed.brandLabel || "GrizCam Portal";
+  const embedSessionState = useEmbedSession();
+  const session = embedSessionState?.status === "ready" ? embedSessionState.session : null;
+  const sessionContext = [session?.orgId ? `Org ${session.orgId}` : null, session?.email, session?.role].filter(Boolean).join(" • ");
 
   return (
     <div
@@ -49,6 +53,7 @@ export const EmbedLayout = ({
                   Analytics
                 </div>
                 {badge ? <div className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[11px] text-zinc-300">{badge}</div> : null}
+                {sessionContext ? <div className="truncate text-[11px] text-zinc-500">{sessionContext}</div> : null}
               </div>
               <div className="mt-1 flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
                 <h1 className="text-lg font-semibold leading-tight text-white">{title}</h1>

@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { defaultDashboardFilters, type EventQuery } from "@grizcam/shared";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { AppShell } from "../components/AppShell";
 import { DayDetailPanel } from "../components/DayDetailPanel";
 import { EventTable } from "../components/EventTable";
@@ -12,6 +13,7 @@ import { Heatmap } from "../components/charts/Heatmap";
 import { MonthlyActivityByCategoryChart } from "../components/charts/MonthlyActivityByCategoryChart";
 import { TimeOfDayChart } from "../components/charts/TimeOfDayChart";
 import { api } from "../lib/api";
+import { isEmbedRoute } from "../lib/embedSession";
 import { appEnv } from "../lib/env";
 import { useDashboardFilters } from "../hooks/useDashboardFilters";
 import { useReportPrefetch } from "../hooks/useReportPrefetch";
@@ -26,6 +28,7 @@ const QueryState = ({ error }: { error?: Error | null }) => (
 );
 
 export const DashboardPage = () => {
+  const location = useLocation();
   const { filters, patchFilters, resetFilters } = useDashboardFilters();
   useReportPrefetch(filters);
   const [selectedDate, setSelectedDate] = useState<string>();
@@ -178,6 +181,7 @@ export const DashboardPage = () => {
         query={eventQuery}
         onQueryChange={handleEventQueryChange}
         exportUrl={api.exportUrl(eventQuery)}
+        onExport={isEmbedRoute(location.pathname) ? () => api.exportEvents(eventQuery) : undefined}
       />
     </AppShell>
   );
