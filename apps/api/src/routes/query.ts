@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { Router } from "express";
+import { resolveAnalyticsScope } from "../embed/analyticsScope.js";
 import { getQueryMetadata } from "../query/catalog.js";
 import { answerQueryFollowUp } from "../query/followUp.js";
 import { GenerateSqlError, generateSqlFromPrompt } from "../query/generateSql.js";
@@ -91,13 +92,23 @@ queryRouter.post("/validate", (request, response) => {
 
 queryRouter.post("/run", async (request, response) => {
   const { sql } = queryRequestSchema.parse(request.body);
-  const result = await runSafeQuery(sql);
+  const scope = await resolveAnalyticsScope(request, response);
+  if (!scope) {
+    return;
+  }
+
+  const result = await runSafeQuery(sql, scope);
   response.status(result.ok ? 200 : 400).json(result);
 });
 
 queryRouter.post("/export", async (request, response) => {
   const { sql } = queryExportSchema.parse(request.body);
-  const result = await exportSafeQueryCsv(sql);
+  const scope = await resolveAnalyticsScope(request, response);
+  if (!scope) {
+    return;
+  }
+
+  const result = await exportSafeQueryCsv(sql, scope);
 
   if (!result.ok) {
     response.status(400).json(result.validation);

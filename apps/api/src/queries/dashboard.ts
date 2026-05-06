@@ -40,6 +40,7 @@ import type {
   VoltageTrendPoint
 } from "@grizcam/shared";
 import { pool } from "../db.js";
+import { STANDALONE_ANALYTICS_SCOPE, type AnalyticsScope } from "../embed/analyticsScope.js";
 import {
   buildFilterClause,
   getEventOrderBy,
@@ -68,7 +69,13 @@ import {
   rawBatteryPercentageSql
 } from "../utils/sql.js";
 
-export const getDevices = async () => {
+const prepareAnalyticsScope = (scope: AnalyticsScope) => {
+  // TASK-007 will apply organization/mac SQL predicates from this boundary.
+  void scope;
+};
+
+export const getDevices = async (scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE) => {
+  prepareAnalyticsScope(scope);
   const result = await pool.query(
     `select mac, camera_name, location_name, location_code, latitude, longitude, camera_profile, notes
      from dim_devices
@@ -77,7 +84,8 @@ export const getDevices = async () => {
   return result.rows;
 };
 
-export const getFilterOptions = async (): Promise<FilterOptionsResponse> => {
+export const getFilterOptions = async (scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE): Promise<FilterOptionsResponse> => {
+  prepareAnalyticsScope(scope);
   const [cameras, macs, timeBuckets, categories, classes, ranges] = await Promise.all([
     pool.query(`select distinct camera_name from dim_devices order by camera_name asc`),
     pool.query(`select mac, camera_name from dim_devices order by camera_name asc`),
@@ -376,7 +384,11 @@ const buildOverviewInsights = (input: {
   return insights.slice(0, 4);
 };
 
-export const getKpis = async (filters: DashboardFilters): Promise<KpiResponse> => {
+export const getKpis = async (
+  filters: DashboardFilters,
+  scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
+): Promise<KpiResponse> => {
+  prepareAnalyticsScope(scope);
   const filter = buildFilterClause(filters);
   const result = await pool.query(
     `
@@ -463,7 +475,11 @@ export const getKpis = async (filters: DashboardFilters): Promise<KpiResponse> =
   };
 };
 
-export const getDailyActivity = async (filters: DashboardFilters): Promise<DailyActivityPoint[]> => {
+export const getDailyActivity = async (
+  filters: DashboardFilters,
+  scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
+): Promise<DailyActivityPoint[]> => {
+  prepareAnalyticsScope(scope);
   const filter = buildFilterClause(filters);
   const result = await pool.query(
     `
@@ -485,7 +501,11 @@ export const getDailyActivity = async (filters: DashboardFilters): Promise<Daily
   return result.rows as DailyActivityPoint[];
 };
 
-export const getHourlyHeatmap = async (filters: DashboardFilters): Promise<HourlyHeatmapPoint[]> => {
+export const getHourlyHeatmap = async (
+  filters: DashboardFilters,
+  scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
+): Promise<HourlyHeatmapPoint[]> => {
+  prepareAnalyticsScope(scope);
   const filter = buildFilterClause(filters);
   const result = await pool.query(
     `
@@ -507,7 +527,11 @@ export const getHourlyHeatmap = async (filters: DashboardFilters): Promise<Hourl
   return result.rows as HourlyHeatmapPoint[];
 };
 
-export const getTimeOfDayComposition = async (filters: DashboardFilters): Promise<TimeOfDayCompositionPoint[]> => {
+export const getTimeOfDayComposition = async (
+  filters: DashboardFilters,
+  scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
+): Promise<TimeOfDayCompositionPoint[]> => {
+  prepareAnalyticsScope(scope);
   const filter = buildFilterClause(filters);
   const result = await pool.query(
     `
@@ -530,7 +554,11 @@ export const getTimeOfDayComposition = async (filters: DashboardFilters): Promis
   return result.rows as TimeOfDayCompositionPoint[];
 };
 
-export const getSubjectByCamera = async (filters: DashboardFilters): Promise<SubjectCameraHeatmapPoint[]> => {
+export const getSubjectByCamera = async (
+  filters: DashboardFilters,
+  scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
+): Promise<SubjectCameraHeatmapPoint[]> => {
+  prepareAnalyticsScope(scope);
   const filter = buildFilterClause(filters);
   const result = await pool.query(
     `
@@ -552,7 +580,11 @@ export const getSubjectByCamera = async (filters: DashboardFilters): Promise<Sub
   return result.rows as SubjectCameraHeatmapPoint[];
 };
 
-export const getMonthlyActivityByCategory = async (filters: DashboardFilters): Promise<MonthlyActivityCategoryPoint[]> => {
+export const getMonthlyActivityByCategory = async (
+  filters: DashboardFilters,
+  scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
+): Promise<MonthlyActivityCategoryPoint[]> => {
+  prepareAnalyticsScope(scope);
   const filter = buildFilterClause(filters);
   const result = await pool.query(
     `
@@ -575,7 +607,11 @@ export const getMonthlyActivityByCategory = async (filters: DashboardFilters): P
   return result.rows as MonthlyActivityCategoryPoint[];
 };
 
-export const getComposition = async (filters: DashboardFilters): Promise<CompositionPoint[]> => {
+export const getComposition = async (
+  filters: DashboardFilters,
+  scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
+): Promise<CompositionPoint[]> => {
+  prepareAnalyticsScope(scope);
   const filter = buildFilterClause(filters);
   const result = await pool.query(
     `
@@ -595,7 +631,11 @@ export const getComposition = async (filters: DashboardFilters): Promise<Composi
   return result.rows as CompositionPoint[];
 };
 
-export const getOverview = async (filters: DashboardFilters): Promise<OverviewResponse> => {
+export const getOverview = async (
+  filters: DashboardFilters,
+  scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
+): Promise<OverviewResponse> => {
+  prepareAnalyticsScope(scope);
   const cte = filteredEventsCte(filters);
 
   const [
@@ -1304,7 +1344,11 @@ const buildAdvancedInsights = (leaders: CameraForecastLeader[], novelEvents: Nov
   return insights.slice(0, 4);
 };
 
-export const getAnalyticsLab = async (filters: DashboardFilters): Promise<AnalyticsLabResponse> => {
+export const getAnalyticsLab = async (
+  filters: DashboardFilters,
+  scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
+): Promise<AnalyticsLabResponse> => {
+  prepareAnalyticsScope(scope);
   const cte = filteredEventsCte(filters);
 
   const [
@@ -1632,7 +1676,12 @@ export const getAnalyticsLab = async (filters: DashboardFilters): Promise<Analyt
   };
 };
 
-export const getDaySummary = async (date: string, filters: DashboardFilters): Promise<DaySummaryResponse> => {
+export const getDaySummary = async (
+  date: string,
+  filters: DashboardFilters,
+  scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
+): Promise<DaySummaryResponse> => {
+  prepareAnalyticsScope(scope);
   const dayFilters = { ...filters, start_date: date, end_date: date };
   const filter = buildFilterClause(dayFilters);
 
@@ -1786,7 +1835,11 @@ export const getDaySummary = async (date: string, filters: DashboardFilters): Pr
   };
 };
 
-export const getEvents = async (query: EventQuery): Promise<EventsResponse> => {
+export const getEvents = async (
+  query: EventQuery,
+  scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
+): Promise<EventsResponse> => {
+  prepareAnalyticsScope(scope);
   const filter = buildFilterClause(query);
   const orderBy = getEventOrderBy(query);
   const offset = (query.page - 1) * query.page_size;
@@ -1884,7 +1937,11 @@ export const getEvents = async (query: EventQuery): Promise<EventsResponse> => {
   };
 };
 
-export const getEventsCsv = async (query: EventQuery): Promise<string> => {
+export const getEventsCsv = async (
+  query: EventQuery,
+  scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
+): Promise<string> => {
+  prepareAnalyticsScope(scope);
   const filter = buildFilterClause(query);
   const orderBy = getEventOrderBy(query);
   const result = await pool.query(
