@@ -10,6 +10,7 @@ import type {
 import { buildReportFilterKey, normalizeReportFilters } from "@grizcam/shared";
 import { appConfig } from "../config.js";
 import { ensureReportsStoreReady, pool, reportsStoreReady } from "../db.js";
+import { STANDALONE_ANALYTICS_SCOPE, type AnalyticsScope } from "../embed/analyticsScope.js";
 import { toReportServiceError, type ReportErrorCode } from "./errors.js";
 import { createOpenRouterReportClient } from "./openrouter.js";
 import { hashReportSnapshot } from "./snapshot.js";
@@ -27,6 +28,10 @@ const reportClient = createOpenRouterReportClient();
 const supportsEphemeralGeneration = () => Boolean(appConfig.openRouterApiKey);
 const buildRequestId = () => randomUUID();
 const getSnapshotBytes = (snapshot: ReportSnapshotSummary) => Buffer.byteLength(JSON.stringify(snapshot), "utf8");
+const prepareReportScope = (scope: AnalyticsScope) => {
+  // TASK-008 will include scope in report snapshot/cache identity.
+  void scope;
+};
 
 const toIdleResponse = (): GetReportResponse => ({
   status: "idle",
@@ -337,7 +342,11 @@ export const selectLatestReportView = (input: {
   };
 };
 
-export const getLatestReport = async (filters: DashboardFilters): Promise<GetReportResponse> => {
+export const getLatestReport = async (
+  filters: DashboardFilters,
+  scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
+): Promise<GetReportResponse> => {
+  prepareReportScope(scope);
   const reportsStoreIssue = await getReportsStoreIssue();
   if (reportsStoreIssue) {
     return {
@@ -375,8 +384,10 @@ export const triggerReportGeneration = async (
   filters: DashboardFilters,
   snapshotInput: ReportSnapshotSummary,
   force = false,
-  requestId: string = buildRequestId()
+  requestId: string = buildRequestId(),
+  scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
 ): Promise<TriggerReportResponse> => {
+  prepareReportScope(scope);
   const overallStartedAt = Date.now();
   const deadlineAtMs = overallStartedAt + appConfig.reportGenerationTimeoutMs;
 
@@ -481,7 +492,11 @@ export const triggerReportGeneration = async (
   }
 };
 
-export const getReportStatus = async (filters: DashboardFilters): Promise<ReportStatusResponse> => {
+export const getReportStatus = async (
+  filters: DashboardFilters,
+  scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
+): Promise<ReportStatusResponse> => {
+  prepareReportScope(scope);
   const reportsStoreIssue = await getReportsStoreIssue();
   if (reportsStoreIssue) {
     return {
@@ -496,7 +511,7 @@ export const getReportStatus = async (filters: DashboardFilters): Promise<Report
     };
   }
 
-  const latest = await getLatestReport(filters);
+  const latest = await getLatestReport(filters, scope);
   return {
     status: latest.status,
     cacheKey: latest.cacheKey,

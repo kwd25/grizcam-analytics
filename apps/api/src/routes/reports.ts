@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { Router } from "express";
 import { triggerReportRequestSchema } from "@grizcam/shared";
+import { resolveAnalyticsScope } from "../embed/analyticsScope.js";
 import { toReportServiceError } from "../reports/errors.js";
 import { getLatestReport, getReportStatus, getReportsHealth, triggerReportGeneration } from "../reports/service.js";
 import { parseFilters } from "../utils/requests.js";
@@ -12,15 +13,30 @@ reportsRouter.get("/health", async (_request, response) => {
 });
 
 reportsRouter.get("/latest", async (request, response) => {
-  response.json(await getLatestReport(parseFilters(request.query as Record<string, unknown>)));
+  const scope = await resolveAnalyticsScope(request, response);
+  if (!scope) {
+    return;
+  }
+
+  response.json(await getLatestReport(parseFilters(request.query as Record<string, unknown>), scope));
 });
 
 reportsRouter.get("/status", async (request, response) => {
-  response.json(await getReportStatus(parseFilters(request.query as Record<string, unknown>)));
+  const scope = await resolveAnalyticsScope(request, response);
+  if (!scope) {
+    return;
+  }
+
+  response.json(await getReportStatus(parseFilters(request.query as Record<string, unknown>), scope));
 });
 
 reportsRouter.post("/generate", async (request, response) => {
   const requestId = randomUUID();
+  const scope = await resolveAnalyticsScope(request, response);
+  if (!scope) {
+    return;
+  }
+
   const parsed = triggerReportRequestSchema.safeParse(request.body);
 
   if (!parsed.success) {
@@ -39,7 +55,7 @@ reportsRouter.post("/generate", async (request, response) => {
   }
 
   try {
-    response.status(200).json(await triggerReportGeneration(parsed.data.filters, parsed.data.snapshot, parsed.data.force, requestId));
+    response.status(200).json(await triggerReportGeneration(parsed.data.filters, parsed.data.snapshot, parsed.data.force, requestId, scope));
   } catch (error) {
     const reportError = toReportServiceError(error);
     console.error("reports.generate.route", {
