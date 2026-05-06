@@ -12,6 +12,15 @@ const QueryPage = lazy(() => import("./pages/QueryPage").then((module) => ({ def
 const ReportsPage = lazy(() => import("./pages/ReportsPage").then((module) => ({ default: module.ReportsPage })));
 
 const queryClient = new QueryClient();
+const fallbackEmbedRoute = "/embed/overview";
+
+const sanitizeEmbedDefaultRoute = (defaultRoute: string | undefined) => {
+  if (!defaultRoute?.startsWith("/embed/")) {
+    return fallbackEmbedRoute;
+  }
+
+  return defaultRoute;
+};
 
 document.title = appEnv.appTitle;
 
@@ -39,6 +48,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             <Route path="/analytics-lab" element={<Navigate to="/advanced" replace />} />
             <Route path="/query" element={<Navigate to="/" replace />} />
             <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/embed" element={<Navigate to={sanitizeEmbedDefaultRoute(appEnv.portalEmbed.defaultRoute)} replace />} />
+            <Route path="/embed/overview" element={<DashboardPage />} />
+            <Route path="/embed/ops" element={<OpsPage />} />
+            <Route path="/embed/advanced" element={<AdvancedPage />} />
+            <Route path="/embed/reports" element={<ReportsPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
