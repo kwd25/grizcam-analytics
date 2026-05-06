@@ -18,6 +18,8 @@ export type EmbedSessionState =
 
 export const EMBED_TOKEN_STORAGE_KEY = "grizcam.embedToken";
 
+let fallbackEmbedToken: string | null = null;
+
 const hasBrowserWindow = () => typeof window !== "undefined";
 
 const getSessionStorage = () => {
@@ -68,13 +70,15 @@ export const getStoredEmbedToken = (): string | null => {
   }
 
   try {
-    return storage.getItem(EMBED_TOKEN_STORAGE_KEY);
+    return storage.getItem(EMBED_TOKEN_STORAGE_KEY) ?? fallbackEmbedToken;
   } catch {
-    return null;
+    return fallbackEmbedToken;
   }
 };
 
 export const storeEmbedToken = (token: string): void => {
+  fallbackEmbedToken = token;
+
   const storage = getSessionStorage();
   if (!storage) {
     return;
@@ -88,6 +92,8 @@ export const storeEmbedToken = (token: string): void => {
 };
 
 export const clearStoredEmbedToken = (): void => {
+  fallbackEmbedToken = null;
+
   const storage = getSessionStorage();
   if (!storage) {
     return;

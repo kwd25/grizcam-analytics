@@ -71,7 +71,7 @@ export const EmbedSessionProvider = ({ children }: PropsWithChildren) => {
     }
 
     const nextKey = `${location.pathname}|${token ?? ""}`;
-    if (loadedKey.current === nextKey && state.status === "ready") {
+    if (loadedKey.current === nextKey && state.status !== "loading") {
       return;
     }
 
