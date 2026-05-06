@@ -26,6 +26,7 @@ import type {
   TimeOfDayCompositionPoint,
   QueryValidationResponse
 } from "@grizcam/shared";
+import { getEmbedTokenForRequest } from "./embedSession";
 import { appEnv } from "./env";
 
 export type QueryRequestErrorCode = "TIMEOUT" | "NETWORK" | "INVALID_RESPONSE";
@@ -95,10 +96,25 @@ const buildParams = (filters: DashboardFilters | EventQuery) => {
   return params.toString();
 };
 
+const withEmbedAuthorization = (headers?: HeadersInit) => {
+  const nextHeaders = new Headers(headers);
+  const token = getEmbedTokenForRequest();
+  if (token) {
+    nextHeaders.set("Authorization", `Bearer ${token}`);
+  }
+  return nextHeaders;
+};
+
+const fetchWithEmbedAuthorization = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, {
+    ...init,
+    headers: withEmbedAuthorization(init.headers)
+  });
+
 const fetchJson = async <T>(path: string, filters?: DashboardFilters | EventQuery): Promise<T> => {
   const query = filters ? buildParams(filters) : "";
   const url = `${appEnv.apiBaseUrl}${path}${query ? `?${query}` : ""}`;
-  const response = await fetch(url);
+  const response = await fetchWithEmbedAuthorization(url);
   const payload = await response.json().catch(() => null);
   if (!response.ok) {
     throw new Error(buildApiErrorMessage(payload, `Request failed: ${response.status}`));
@@ -111,7 +127,7 @@ const postQueryJson = async <T>(path: string, body: unknown): Promise<T> => {
   const timeoutId = window.setTimeout(() => controller.abort(), QUERY_REQUEST_TIMEOUT_MS);
 
   try {
-    const response = await fetch(`${appEnv.apiBaseUrl}${path}`, {
+    const response = await fetchWithEmbedAuthorization(`${appEnv.apiBaseUrl}${path}`, {
       method: "POST",
       headers: {
         "content-type": "application/json"
@@ -157,7 +173,7 @@ const postJson = async <T>(path: string, body: unknown, timeoutMs = QUERY_REQUES
   const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const response = await fetch(`${appEnv.apiBaseUrl}${path}`, {
+    const response = await fetchWithEmbedAuthorization(`${appEnv.apiBaseUrl}${path}`, {
       method: "POST",
       headers: {
         "content-type": "application/json"
@@ -192,7 +208,7 @@ const postQueryDownload = async (path: string, body: unknown): Promise<Blob> => 
   const timeoutId = window.setTimeout(() => controller.abort(), QUERY_REQUEST_TIMEOUT_MS);
 
   try {
-    const response = await fetch(`${appEnv.apiBaseUrl}${path}`, {
+    const response = await fetchWithEmbedAuthorization(`${appEnv.apiBaseUrl}${path}`, {
       method: "POST",
       headers: {
         "content-type": "application/json"
@@ -226,6 +242,25 @@ const postQueryDownload = async (path: string, body: unknown): Promise<Blob> => 
   }
 };
 
+const downloadJsonErrorMessage = (payload: unknown, fallback: string) =>
+  payload && typeof payload === "object" && "issues" in payload && Array.isArray((payload as { issues?: Array<{ message?: string }> }).issues)
+    ? (payload as { issues: Array<{ message?: string }> }).issues[0]?.message ?? fallback
+    : payload && typeof payload === "object" && "error" in payload && typeof (payload as { error?: unknown }).error === "string"
+      ? (payload as { error: string }).error
+      : fallback;
+
+const getBlobDownload = async (path: string, filters: EventQuery): Promise<Blob> => {
+  const query = buildParams(filters);
+  const response = await fetchWithEmbedAuthorization(`${appEnv.apiBaseUrl}${path}${query ? `?${query}` : ""}`);
+
+  if (!response.ok) {
+    const payload = await response.json().catch(() => null);
+    throw new QueryRequestError("INVALID_RESPONSE", downloadJsonErrorMessage(payload, `The export request returned HTTP ${response.status}.`));
+  }
+
+  return await response.blob();
+};
+
 export const api = {
   filterOptions: () => fetchJson<FilterOptionsResponse>("/api/filters/options"),
   kpis: (filters: DashboardFilters) => fetchJson<KpiResponse>("/api/kpis", filters),
@@ -251,6 +286,7 @@ export const api = {
   validateQuery: (sql: string) => postQueryJson<QueryValidationResponse>("/api/query/validate", { sql }),
   runQuery: (sql: string) => postQueryJson<QueryRunResponse>("/api/query/run", { sql }),
   exportQuery: (sql: string, format: QueryExportFormat = "csv") => postQueryDownload("/api/query/export", { sql, format }),
+  exportEvents: (filters: EventQuery) => getBlobDownload("/api/events/export", filters),
   exportUrl: (filters: EventQuery) => `${appEnv.apiBaseUrl}/api/events/export?${buildParams(filters)}`,
   exportsEnabled: appEnv.exportsEnabled
 };

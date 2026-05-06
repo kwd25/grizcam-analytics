@@ -12,6 +12,7 @@ type EventTableProps = {
   query: EventQuery;
   onQueryChange: (patch: Partial<EventQuery>) => void;
   exportUrl: string;
+  onExport?: () => Promise<Blob>;
 };
 
 const columns: Array<{ key: EventQuery["sort_by"]; label: string }> = [
@@ -26,9 +27,11 @@ const columns: Array<{ key: EventQuery["sort_by"]; label: string }> = [
   { key: "heat_level", label: "Heat" }
 ];
 
-export const EventTable = ({ data, isLoading, query, onQueryChange, exportUrl }: EventTableProps) => {
+export const EventTable = ({ data, isLoading, query, onQueryChange, exportUrl, onExport }: EventTableProps) => {
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
   const [searchDraft, setSearchDraft] = useState(query.q ?? "");
+  const [exportError, setExportError] = useState<string | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
   const debouncedSearch = useDebouncedValue(searchDraft, 350);
 
   useEffect(() => {
@@ -50,15 +53,51 @@ export const EventTable = ({ data, isLoading, query, onQueryChange, exportUrl }:
 
   const totalPages = data ? Math.max(1, Math.ceil(data.total / data.pageSize)) : 1;
 
+  const downloadExport = async () => {
+    if (!onExport || isExporting) {
+      return;
+    }
+
+    setExportError(null);
+    setIsExporting(true);
+
+    try {
+      const blob = await onExport();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "grizcam-events.csv";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      setExportError(error instanceof Error ? error.message : "CSV export failed.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <SectionCard
       title="Event Explorer"
       subtitle="Server-side search, sorting, and pagination over event-level details."
       actions={
         api.exportsEnabled ? (
-          <a href={exportUrl} className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-zinc-200 hover:bg-white/10">
-            Export CSV
-          </a>
+          onExport ? (
+            <button
+              type="button"
+              onClick={() => void downloadExport()}
+              disabled={isExporting}
+              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-zinc-200 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isExporting ? "Exporting..." : "Export CSV"}
+            </button>
+          ) : (
+            <a href={exportUrl} className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-zinc-200 hover:bg-white/10">
+              Export CSV
+            </a>
+          )
         ) : (
           <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-zinc-500">
             CSV export disabled in demo
@@ -66,6 +105,10 @@ export const EventTable = ({ data, isLoading, query, onQueryChange, exportUrl }:
         )
       }
     >
+      {exportError ? (
+        <div className="mb-4 rounded-2xl border border-red-300/20 bg-red-300/10 px-4 py-3 text-sm text-red-100">{exportError}</div>
+      ) : null}
+
       <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <input
           type="search"
