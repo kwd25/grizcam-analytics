@@ -70,6 +70,7 @@ const relations: QueryRelationMetadata[] = [
     supportsGroupBy: true,
     columns: [
       { name: "date", type: "date" },
+      { name: "organization_id", type: "text" },
       { name: "mac", type: "text" },
       { name: "camera_name", type: "text" },
       { name: "total_rows", type: "number" },
@@ -100,6 +101,7 @@ const relations: QueryRelationMetadata[] = [
     supportsGroupBy: true,
     columns: [
       { name: "mac", type: "text" },
+      { name: "organization_id", type: "text" },
       { name: "camera_name", type: "text" },
       { name: "location_name", type: "text" },
       { name: "location_code", type: "text" },
@@ -121,6 +123,7 @@ const relations: QueryRelationMetadata[] = [
     supportsGroupBy: true,
     columns: [
       { name: "id", type: "text" },
+      { name: "organization_id", type: "text" },
       { name: "name", type: "text" },
       { name: "camera_name", type: "text" },
       { name: "mac", type: "text" },

@@ -69,9 +69,8 @@ import {
   rawBatteryPercentageSql
 } from "../utils/sql.js";
 
-// TODO: Flip these to true when the analytics tables expose organization_id.
-const EVENTS_SUPPORTS_ORGANIZATION_ID = false;
-const DIM_DEVICES_SUPPORTS_ORGANIZATION_ID = false;
+const EVENTS_SUPPORTS_ORGANIZATION_ID = true;
+const DIM_DEVICES_SUPPORTS_ORGANIZATION_ID = true;
 
 const buildEventFilterClause = (filters: DashboardFilters, scope: AnalyticsScope, alias = "e") =>
   buildScopedFilterClause(filters, scope, {
@@ -174,6 +173,7 @@ const filteredEventsCte = (filters: DashboardFilters, scope: AnalyticsScope, ali
     base as (
       select
         id,
+        organization_id,
         ${normalizedCameraNameSql("filtered")} as camera_name,
         filtered.name,
         filtered.mac,
@@ -833,6 +833,7 @@ export const getOverview = async (
       ${cte.text}
       select
         id,
+        organization_id,
         to_char(local_timestamp, 'YYYY-MM-DD"T"HH24:MI:SS') as local_timestamp,
         to_char(utc_timestamp, 'YYYY-MM-DD"T"HH24:MI:SS') as utc_timestamp,
         to_char(utc_timestamp_off, 'YYYY-MM-DD"T"HH24:MI:SS') as utc_timestamp_off,
@@ -1787,6 +1788,7 @@ export const getDaySummary = async (
       )
       select
         id,
+        organization_id,
         to_char(${normalizedTimestampSql("filtered")}, 'YYYY-MM-DD"T"HH24:MI:SS') as "timestamp",
         to_char(${normalizedTimestampSql("filtered")}, 'YYYY-MM-DD"T"HH24:MI:SS') as local_timestamp,
         ${normalizedCameraNameSql("filtered")} as camera_name,
@@ -1890,6 +1892,7 @@ export const getEvents = async (
       `
       select
         id,
+        organization_id,
         to_char(${normalizedTimestampSql("e")}, 'YYYY-MM-DD"T"HH24:MI:SS') as "timestamp",
         to_char(${normalizedTimestampSql("e")}, 'YYYY-MM-DD"T"HH24:MI:SS') as local_timestamp,
         ${normalizedCameraNameSql("e")} as camera_name,

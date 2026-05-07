@@ -217,21 +217,26 @@ test("getEvents applies the same embed mac scope to count and row queries", asyn
 
   assert.equal(mockPool.calls.length, 2);
   assert.match(mockPool.calls[0].sql, /e\.mac = ANY\(\$1::text\[\]\)/);
+  assert.match(mockPool.calls[0].sql, /e\.organization_id = \$2/);
   assert.match(mockPool.calls[1].sql, /e\.mac = ANY\(\$1::text\[\]\)/);
-  assert.deepEqual(mockPool.calls[0].values, [["A"]]);
-  assert.deepEqual(mockPool.calls[1].values.slice(0, 1), [["A"]]);
+  assert.match(mockPool.calls[1].sql, /e\.organization_id = \$2/);
+  assert.deepEqual(mockPool.calls[0].values, [["A"], "org_123"]);
+  assert.deepEqual(mockPool.calls[1].values.slice(0, -2), [["A"], "org_123"]);
 });
 
-test("getEvents applies a zero-row predicate for empty mac embed scope when organization scope is unsupported", async () => {
+test("getEvents applies organization-only scope for empty mac embed scope", async () => {
   mockPool.calls = [];
 
   await dashboardModule.getEvents(baseEventQuery, embedScope([]));
 
   assert.equal(mockPool.calls.length, 2);
-  assert.match(mockPool.calls[0].sql, /where 1 = 0/);
-  assert.match(mockPool.calls[1].sql, /where 1 = 0/);
-  assert.deepEqual(mockPool.calls[0].values, []);
-  assert.deepEqual(mockPool.calls[1].values.slice(0, -2), []);
+  assert.doesNotMatch(mockPool.calls[0].sql, /1 = 0/);
+  assert.doesNotMatch(mockPool.calls[1].sql, /1 = 0/);
+  assert.doesNotMatch(mockPool.calls[0].sql, /mac = ANY/);
+  assert.match(mockPool.calls[0].sql, /where e\.organization_id = \$1/);
+  assert.match(mockPool.calls[1].sql, /where e\.organization_id = \$1/);
+  assert.deepEqual(mockPool.calls[0].values, ["org_123"]);
+  assert.deepEqual(mockPool.calls[1].values.slice(0, -2), ["org_123"]);
 });
 
 test("getFilterOptions scopes device and event-derived option queries", async () => {
@@ -240,23 +245,23 @@ test("getFilterOptions scopes device and event-derived option queries", async ()
   await dashboardModule.getFilterOptions(embedScope(["A", "B"]));
 
   assert.equal(mockPool.calls.length, 6);
-  assert.match(mockPool.calls[0].sql, /from dim_devices d where d\.mac = ANY\(\$1::text\[\]\)/);
-  assert.match(mockPool.calls[2].sql, /from events e where e\.mac = ANY\(\$1::text\[\]\)/);
-  assert.match(mockPool.calls[5].sql, /from events e\s+where e\.mac = ANY\(\$1::text\[\]\)/);
-  assert.deepEqual(mockPool.calls[0].values, [["A", "B"]]);
-  assert.deepEqual(mockPool.calls[2].values, [["A", "B"]]);
+  assert.match(mockPool.calls[0].sql, /from dim_devices d where d\.mac = ANY\(\$1::text\[\]\) and d\.organization_id = \$2/);
+  assert.match(mockPool.calls[2].sql, /from events e where e\.mac = ANY\(\$1::text\[\]\) and e\.organization_id = \$2/);
+  assert.match(mockPool.calls[5].sql, /from events e\s+where e\.mac = ANY\(\$1::text\[\]\) and e\.organization_id = \$2/);
+  assert.deepEqual(mockPool.calls[0].values, [["A", "B"], "org_123"]);
+  assert.deepEqual(mockPool.calls[2].values, [["A", "B"], "org_123"]);
 });
 
-test("getFilterOptions applies a zero-row predicate for empty mac embed scope when organization scope is unsupported", async () => {
+test("getFilterOptions applies organization-only scope for empty mac embed scope", async () => {
   mockPool.calls = [];
 
   await dashboardModule.getFilterOptions(embedScope([]));
 
   assert.equal(mockPool.calls.length, 6);
-  assert.match(mockPool.calls[0].sql, /from dim_devices d where 1 = 0/);
-  assert.match(mockPool.calls[1].sql, /from dim_devices d where 1 = 0/);
-  assert.match(mockPool.calls[2].sql, /from events e where 1 = 0 and/);
-  assert.match(mockPool.calls[5].sql, /from events e\s+where 1 = 0/);
-  assert.deepEqual(mockPool.calls[0].values, []);
-  assert.deepEqual(mockPool.calls[2].values, []);
+  assert.match(mockPool.calls[0].sql, /from dim_devices d where d\.organization_id = \$1/);
+  assert.match(mockPool.calls[1].sql, /from dim_devices d where d\.organization_id = \$1/);
+  assert.match(mockPool.calls[2].sql, /from events e where e\.organization_id = \$1 and/);
+  assert.match(mockPool.calls[5].sql, /from events e\s+where e\.organization_id = \$1/);
+  assert.deepEqual(mockPool.calls[0].values, ["org_123"]);
+  assert.deepEqual(mockPool.calls[2].values, ["org_123"]);
 });

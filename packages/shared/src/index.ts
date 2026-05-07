@@ -190,6 +190,7 @@ export type DaySummaryResponse = {
 
 export type EventRecord = {
   id: string;
+  organizationId?: string | null;
   timestamp: string;
   localTimestamp: string;
   utcTimestamp?: string | null;

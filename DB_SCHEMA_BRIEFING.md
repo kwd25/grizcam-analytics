@@ -29,6 +29,7 @@ The schema is intentionally small and analytics-oriented. There are 3 public tab
 - Database type: PostgreSQL
 - Schema used by app: `public`
 - Main join key: `mac`
+- Tenant scope key: `organization_id`
 - Event grain: one row per captured image/event row
 - Summary grain: one row per camera per day
 - Event grouping concept: multiple `events` rows may belong to the same logical event via the `event` column
@@ -42,6 +43,7 @@ erDiagram
 
     dim_devices {
         text mac PK
+        text organization_id
         text camera_name
         text location_name
         text location_code
@@ -53,6 +55,7 @@ erDiagram
 
     events {
         text id PK
+        text organization_id
         text mac FK
         text event
         timestamp utc_timestamp
@@ -67,6 +70,7 @@ erDiagram
 
     daily_camera_summary {
         date date PK
+        text organization_id
         text mac PK,FK
         text camera_name
         int total_rows
@@ -87,6 +91,10 @@ One row per camera device.
 Keys:
 - Primary key: `mac`
 
+Indexes:
+- `idx_dim_devices_organization_id` on `(organization_id)`
+- `idx_dim_devices_organization_mac` on `(organization_id, mac)`
+
 Used for:
 - Camera metadata
 - Camera filters
@@ -97,6 +105,7 @@ Columns:
 | Column | Type | Null | Description |
 | --- | --- | --- | --- |
 | `mac` | `text` | No | Unique device identifier. Primary join key to fact tables. |
+| `organization_id` | `text` | Yes | Portal organization / tenant ID. Used for org-level dashboard scoping when populated. |
 | `camera_name` | `text` | No | Human-readable camera name used widely in UI and queries. |
 | `location_name` | `text` | No | Friendly location label. |
 | `location_code` | `text` | No | Location code / geospatial identifier. |
@@ -123,6 +132,8 @@ Keys:
 
 Indexes:
 - `idx_events_mac_utc` on `(mac, utc_timestamp)`
+- `idx_events_organization_id` on `(organization_id)`
+- `idx_events_organization_mac` on `(organization_id, mac)`
 - `idx_events_timestamp` on `(timestamp)`
 - `idx_events_time_bucket` on `(time_of_day_bucket)`
 - `idx_events_subject_category` on `(subject_category)`
@@ -133,6 +144,7 @@ Columns:
 | Column | Type | Null | Description |
 | --- | --- | --- | --- |
 | `id` | `text` | No | Unique row identifier. |
+| `organization_id` | `text` | Yes | Portal organization / tenant ID. Primary tenant boundary for embedded analytics scope. |
 | `name` | `text` | Yes | Legacy or alternate camera/device label. |
 | `mac` | `text` | No | Device key. Joins to `dim_devices`. |
 | `event` | `text` | No | Logical event-group identifier. Use for grouping multi-row bursts. |
@@ -179,7 +191,7 @@ Columns:
 Functional column groups:
 
 - Identity and event grouping:
-  `id`, `event`, `sequence`
+  `id`, `organization_id`, `event`, `sequence`
 - Device and location:
   `mac`, `camera_name`, `name`, `location`, `latitude`, `longitude`, `sensor`, `bearing`
 - Time:
@@ -218,12 +230,14 @@ Keys:
 
 Indexes:
 - `idx_daily_camera_summary_date_mac` on `(date, mac)`
+- `idx_daily_camera_summary_organization_mac_date` on `(organization_id, mac, date)`
 
 Columns:
 
 | Column | Type | Null | Description |
 | --- | --- | --- | --- |
 | `date` | `date` | No | Local business date derived from `DATE(timestamp)`. |
+| `organization_id` | `text` | Yes | Portal organization / tenant ID denormalized from events. |
 | `mac` | `text` | No | Camera/device key. |
 | `camera_name` | `text` | No | Denormalized camera name. |
 | `total_rows` | `integer` | No | Total event rows for the camera on that date. |
@@ -246,6 +260,7 @@ Build logic:
 `daily_camera_summary` is rebuilt from `events` by grouping on:
 
 - `DATE(timestamp)`
+- `organization_id`
 - `mac`
 - `camera_name`
 

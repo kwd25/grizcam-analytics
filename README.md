@@ -187,3 +187,5 @@ Report generation reuses existing `overview` and `analytics-lab` aggregates rath
 ## Synthetic Data
 
 The `synthetic/` folder contains utilities and notes for generating synthetic camera event records. Generated raw event exports are intentionally ignored and should not be committed.
+
+For Portal integration readiness, see [`docs/PORTAL_DATA_MAPPING.md`](docs/PORTAL_DATA_MAPPING.md) for the Cosmos-to-Postgres analytics field mapping and organization scope behavior.
