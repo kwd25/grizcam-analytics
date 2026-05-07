@@ -82,3 +82,21 @@ When both are present, MAC filters narrow rows within the organization. When MAC
 Existing demo data without `organization_id` may still run in standalone mode. Embedded org-level access requires either an `organization_id`-capable relation or a non-empty MAC scope.
 
 The synthetic generator now emits deterministic organization IDs for demo data, but generated exports remain ignored and should not be committed.
+
+## Sync Scaffold
+
+The API workspace includes a dry-run-first Portal event sync scaffold under `apps/api/src/sync`. It transforms local Cosmos-style Portal event JSON into the analytics event row shape and can preview fixture or local-file inputs without connecting to live Cosmos.
+
+Dry-run examples:
+
+```bash
+npm run sync:cosmos --workspace @grizcam/api -- --dry-run --fixture
+npm run sync:cosmos --workspace @grizcam/api -- --dry-run --file path/to/events.json
+npm run sync:cosmos --workspace @grizcam/api -- --dry-run --limit 10
+```
+
+The scaffold also includes a parameterized Postgres upsert builder and a `sync_watermarks` query helper for future ingestion state. Live Cosmos ingestion is not enabled yet, no Azure SDK dependency is required, and the sync does not run automatically during API startup.
+
+Future live sync configuration is expected to use server-only environment variables such as `COSMOS_ENDPOINT`, `COSMOS_KEY`, `COSMOS_DATABASE_ID`, `COSMOS_EVENTS_CONTAINER_ID`, and `COSMOS_EVENT_ANALYSIS_CONTAINER_ID`. These are optional placeholders for later work and are not required for fixture dry runs or tests.
+
+The current analytics `events` table stores logical event grouping in the existing `event` column. The scaffold adds non-destructive audit/media columns for future Portal ingestion: `audio_blob_url`, `video_blob_url`, `raw_event`, `raw_analysis`, and `updated_at`.

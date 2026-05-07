@@ -1,0 +1,111 @@
+[
+  {
+    "id": "sample_wildlife_001",
+    "organizationId": "org_demo_north",
+    "name": "North Ridge Camera",
+    "mac": "F0F5BD77B104",
+    "event": "evt_wildlife_2025_01_01_001",
+    "sequence": "1",
+    "sensor": "pir",
+    "utc_timestamp": "2025-01-01T14:15:30Z",
+    "timestamp": "2025-01-01 07:15:30",
+    "timezone": "America/Denver",
+    "fileType": "image/jpeg",
+    "filename": "north-ridge-wildlife-001.jpg",
+    "tag": "wildlife",
+    "heatLevel": "42",
+    "location": "north ridge",
+    "latitude": "44.615",
+    "longitude": "-110.431",
+    "temperature": "31.4",
+    "humidity": "52.1",
+    "pressure": "1012.4",
+    "bearing": "87",
+    "voltage": "4.82",
+    "batteryPercentage": "96.5",
+    "lux": "140",
+    "image_blob_url": "https://example.blob.core.windows.net/grizcam/sample-wildlife.jpg",
+    "audio_blob_url": "https://example.blob.core.windows.net/grizcam/sample-wildlife.wav",
+    "ai_processed": "true",
+    "json_processed": "true",
+    "created": "2025-01-01T14:16:02Z",
+    "json_timestamp": "2025-01-01T14:16:20Z",
+    "ai_description": {
+      "title": "Elk crossing at North Ridge",
+      "summary": "A small group of elk moved across the frame in daylight.",
+      "keywords": {
+        "Animals": ["elk"],
+        "category": "wildlife"
+      },
+      "details": {
+        "main_subject": "elk"
+      }
+    },
+    "event_analysis": {
+      "title": "Elk crossing at North Ridge",
+      "summary": "A small group of elk moved across the frame in daylight.",
+      "keywords": {
+        "Animals": ["elk"],
+        "category": "wildlife"
+      },
+      "details": {
+        "main_subject": "elk"
+      }
+    }
+  },
+  {
+    "id": "sample_human_001",
+    "organizationId": "org_demo_south",
+    "name": "South Gate Camera",
+    "mac": "AABBCC112233",
+    "event": "evt_human_2025_01_02_001",
+    "sequence": 1,
+    "sensor": "motion",
+    "utc_timestamp": "2025-01-02T20:45:00Z",
+    "timestamp": "2025-01-02 13:45:00",
+    "timezone": "America/Denver",
+    "fileType": "image/jpeg",
+    "filename": "south-gate-human-001.jpg",
+    "tag": "people",
+    "heatLevel": 35,
+    "location": "south gate",
+    "latitude": 44.512,
+    "longitude": -110.251,
+    "temperature": 28.2,
+    "humidity": 48,
+    "pressure": 1010.1,
+    "bearing": 182,
+    "voltage": 4.74,
+    "batteryPercentage": 91.2,
+    "lux": 320,
+    "image_blob_url": "https://example.blob.core.windows.net/grizcam/sample-human.jpg",
+    "video_blob_url": "https://example.blob.core.windows.net/grizcam/sample-human.mp4",
+    "ai_processed": true,
+    "json_processed": true,
+    "created": "2025-01-02T20:45:24Z",
+    "json_timestamp": "2025-01-02T20:45:55Z",
+    "ai_description": {
+      "title": "Person near service road",
+      "summary": "One person walked near the south gate service road.",
+      "keywords": {
+        "People": ["person"],
+        "category": "human"
+      },
+      "details": {
+        "main_subject": "person"
+      }
+    }
+  },
+  {
+    "organizationId": "org_demo_north",
+    "name": "Messy Camera",
+    "event": "evt_messy_001",
+    "sequence": "not-a-number",
+    "utc_timestamp": "not-a-date",
+    "timestamp": "2025-01-03 08:15:00",
+    "filename": "messy-event.jpg",
+    "batteryPercentage": "full",
+    "ai_processed": "maybe",
+    "ai_description": "not json"
+  }
+]

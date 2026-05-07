@@ -130,6 +130,17 @@ npm run build
 
 The root build compiles the shared package first, then the API, then the web app.
 
+## Portal Sync Scaffold
+
+The API includes a fixture-based scaffold for transforming GrizCam Portal Cosmos-style event JSON into the analytics Postgres event shape. It is dry-run-first and does not connect to live Cosmos unless a future task adds that implementation.
+
+```bash
+npm run sync:cosmos --workspace @grizcam/api -- --dry-run --fixture
+npm run sync:cosmos --workspace @grizcam/api -- --dry-run --file path/to/events.json
+```
+
+See [docs/PORTAL_DATA_MAPPING.md](docs/PORTAL_DATA_MAPPING.md) for the Portal field mapping, dry-run behavior, and future Cosmos configuration placeholders.
+
 ## Deployment
 
 The project is configured for Vercel:
