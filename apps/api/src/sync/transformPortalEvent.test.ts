@@ -149,3 +149,17 @@ test("derives deterministic fallback id from mac, utc_timestamp, and filename", 
 
   assert.match(row.id, /^portal_[a-f0-9]{24}$/);
 });
+
+test("keeps non-object ai_description out of JSON object fields", () => {
+  const row = transformOk(
+    baseEvent({
+      event_analysis: undefined,
+      ai_description: "plain text analysis"
+    })
+  );
+
+  assert.equal(row.aiDescription, "plain text analysis");
+  assert.equal(row.rawAnalysis, null);
+  assert.equal(row.keywords, null);
+  assert.equal(row.details, null);
+});

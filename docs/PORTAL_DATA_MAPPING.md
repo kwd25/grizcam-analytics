@@ -95,7 +95,7 @@ npm run sync:cosmos --workspace @grizcam/api -- --dry-run --file path/to/events.
 npm run sync:cosmos --workspace @grizcam/api -- --dry-run --limit 10
 ```
 
-The scaffold also includes a parameterized Postgres upsert builder and a `sync_watermarks` query helper for future ingestion state. Live Cosmos ingestion is not enabled yet, no Azure SDK dependency is required, and the sync does not run automatically during API startup.
+The scaffold also includes a parameterized Postgres upsert builder and a `sync_watermarks` query helper for future ingestion state. `--write` is intentionally limited to fixture or local JSON file input and should only be used after applying `apps/api/migrations/003_portal_sync_scaffold.sql` to the target database. Live Cosmos ingestion is not enabled yet, no Azure SDK dependency is required, and the sync does not run automatically during API startup.
 
 Future live sync configuration is expected to use server-only environment variables such as `COSMOS_ENDPOINT`, `COSMOS_KEY`, `COSMOS_DATABASE_ID`, `COSMOS_EVENTS_CONTAINER_ID`, and `COSMOS_EVENT_ANALYSIS_CONTAINER_ID`. These are optional placeholders for later work and are not required for fixture dry runs or tests.
 

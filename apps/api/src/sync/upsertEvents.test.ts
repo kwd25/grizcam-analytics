@@ -84,3 +84,10 @@ test("values length matches expected columns times rows", () => {
 
   assert.equal(query.values.length, UPSERT_EVENTS_COLUMN_COUNT * 2);
 });
+
+test("multi-row placeholder numbering is sequential", () => {
+  const query = buildUpsertEventsQuery([row(), row({ id: "sample_row_2" })]);
+  const placeholders = Array.from(query.text.matchAll(/\$(\d+)/g), (match) => Number(match[1]));
+
+  assert.deepEqual(placeholders, Array.from({ length: UPSERT_EVENTS_COLUMN_COUNT * 2 }, (_, index) => index + 1));
+});

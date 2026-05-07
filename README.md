@@ -139,7 +139,7 @@ npm run sync:cosmos --workspace @grizcam/api -- --dry-run --fixture
 npm run sync:cosmos --workspace @grizcam/api -- --dry-run --file path/to/events.json
 ```
 
-See [docs/PORTAL_DATA_MAPPING.md](docs/PORTAL_DATA_MAPPING.md) for the Portal field mapping, dry-run behavior, and future Cosmos configuration placeholders.
+`--write` is local fixture/file only for now and requires `apps/api/migrations/003_portal_sync_scaffold.sql` on the target database. See [docs/PORTAL_DATA_MAPPING.md](docs/PORTAL_DATA_MAPPING.md) for the Portal field mapping, dry-run behavior, and future Cosmos configuration placeholders.
 
 ## Deployment
 
