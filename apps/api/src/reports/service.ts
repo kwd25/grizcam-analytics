@@ -7,12 +7,13 @@ import type {
   ReportStatusResponse,
   TriggerReportResponse
 } from "@grizcam/shared";
-import { buildReportFilterKey, normalizeReportFilters } from "@grizcam/shared";
+import { normalizeReportFilters } from "@grizcam/shared";
 import { appConfig } from "../config.js";
 import { ensureReportsStoreReady, pool, reportsStoreReady } from "../db.js";
 import { STANDALONE_ANALYTICS_SCOPE, type AnalyticsScope } from "../embed/analyticsScope.js";
 import { toReportServiceError, type ReportErrorCode } from "./errors.js";
 import { createOpenRouterReportClient } from "./openrouter.js";
+import { buildReportScopeIdentity, buildScopedReportFilterKey, type ReportScopeIdentity } from "./scopeKey.js";
 import { hashReportSnapshot } from "./snapshot.js";
 import {
   createQueuedReport,
@@ -28,10 +29,10 @@ const reportClient = createOpenRouterReportClient();
 const supportsEphemeralGeneration = () => Boolean(appConfig.openRouterApiKey);
 const buildRequestId = () => randomUUID();
 const getSnapshotBytes = (snapshot: ReportSnapshotSummary) => Buffer.byteLength(JSON.stringify(snapshot), "utf8");
-const prepareReportScope = (scope: AnalyticsScope) => {
-  // TASK-008 will include scope in report snapshot/cache identity.
-  void scope;
-};
+const prepareReportScope = (filters: DashboardFilters, scope: AnalyticsScope) => ({
+  filterKey: buildScopedReportFilterKey(filters, scope),
+  scopeIdentity: buildReportScopeIdentity(scope)
+});
 
 const toIdleResponse = (): GetReportResponse => ({
   status: "idle",
@@ -95,12 +96,12 @@ const getReportsStoreIssue = async () => {
   return null;
 };
 
-const coerceSnapshot = (filters: DashboardFilters, snapshot: ReportSnapshotSummary): ReportSnapshotSummary => {
+const coerceSnapshot = (filters: DashboardFilters, snapshot: ReportSnapshotSummary, filterKey: string): ReportSnapshotSummary => {
   const normalizedFilters = normalizeReportFilters(filters);
   return {
     ...snapshot,
     filters: normalizedFilters,
-    filterKey: buildReportFilterKey(normalizedFilters),
+    filterKey,
     dateRange: {
       startDate: normalizedFilters.start_date ?? "",
       endDate: normalizedFilters.end_date ?? ""
@@ -158,15 +159,15 @@ const buildErrorResponse = (input: {
 };
 
 const buildEphemeralResponse = async (
-  filters: DashboardFilters,
+  filterKey: string,
   snapshot: ReportSnapshotSummary,
+  snapshotHash: string,
+  scopeIdentity: ReportScopeIdentity,
   requestId: string,
   deadlineAtMs: number,
   baseTimingMs: Record<string, number>
 ): Promise<TriggerReportResponse> => {
   const overallStartedAt = Date.now();
-  const filterKey = buildReportFilterKey(filters);
-  const snapshotHash = hashReportSnapshot(snapshot, appConfig.reportPromptVersion, appConfig.openRouterModel);
   const modelResult = await reportClient.generateReport(snapshot, { requestId, deadlineAtMs });
   const completedAt = new Date().toISOString();
   const timingMs = {
@@ -220,6 +221,7 @@ const buildEphemeralResponse = async (
         requestId,
         lastErrorCode: null,
         lastErrorMessage: null,
+        scopeIdentity,
         timingMs
       }
     },
@@ -230,8 +232,10 @@ const buildEphemeralResponse = async (
 const persistReportBestEffort = async (input: {
   requestId: string;
   filters: DashboardFilters;
+  filterKey: string;
   snapshot: ReportSnapshotSummary;
   snapshotHash: string;
+  scopeIdentity: ReportScopeIdentity;
   report: NonNullable<TriggerReportResponse["report"]>["report"];
   timingMs: Record<string, number>;
 }) => {
@@ -241,13 +245,16 @@ const persistReportBestEffort = async (input: {
 
   const startedAt = Date.now();
   try {
-    const filterKey = buildReportFilterKey(input.filters);
     const reportRow = await createQueuedReport({
       id: randomUUID(),
-      filterKey,
+      filterKey: input.filterKey,
       promptVersion: appConfig.reportPromptVersion,
       model: appConfig.openRouterModel,
-      filters: input.filters
+      filters: input.filters,
+      debug: {
+        requestId: input.requestId,
+        scopeIdentity: input.scopeIdentity
+      }
     });
 
     const readyRow = await updateReportPhase(reportRow.id, {
@@ -260,6 +267,7 @@ const persistReportBestEffort = async (input: {
       completed: true,
       debugPatch: {
         requestId: input.requestId,
+        scopeIdentity: input.scopeIdentity,
         timingMs: {
           ...input.timingMs,
           persistence: Date.now() - startedAt
@@ -346,7 +354,7 @@ export const getLatestReport = async (
   filters: DashboardFilters,
   scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
 ): Promise<GetReportResponse> => {
-  prepareReportScope(scope);
+  const { filterKey } = prepareReportScope(filters, scope);
   const reportsStoreIssue = await getReportsStoreIssue();
   if (reportsStoreIssue) {
     return {
@@ -358,7 +366,6 @@ export const getLatestReport = async (
   }
 
   try {
-    const filterKey = buildReportFilterKey(filters);
     const latestByFilter = await findLatestByFilterKey(filterKey);
     const staleReady =
       latestByFilter?.jobStatus === "ready" ? null : await findLatestReadyByFilterKey(filterKey, latestByFilter?.id);
@@ -387,7 +394,7 @@ export const triggerReportGeneration = async (
   requestId: string = buildRequestId(),
   scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
 ): Promise<TriggerReportResponse> => {
-  prepareReportScope(scope);
+  const { filterKey, scopeIdentity } = prepareReportScope(filters, scope);
   const overallStartedAt = Date.now();
   const deadlineAtMs = overallStartedAt + appConfig.reportGenerationTimeoutMs;
 
@@ -400,8 +407,8 @@ export const triggerReportGeneration = async (
     });
   }
 
-  const snapshot = coerceSnapshot(filters, snapshotInput);
-  const snapshotHash = hashReportSnapshot(snapshot, appConfig.reportPromptVersion, appConfig.openRouterModel);
+  const snapshot = coerceSnapshot(filters, snapshotInput, filterKey);
+  const snapshotHash = hashReportSnapshot(snapshot, appConfig.reportPromptVersion, appConfig.openRouterModel, scopeIdentity);
   const snapshotBytes = getSnapshotBytes(snapshot);
   const storageStartedAt = Date.now();
   const storageState = await ensureReportsStoreReady();
@@ -457,15 +464,17 @@ export const triggerReportGeneration = async (
   }
 
   try {
-    const response = await buildEphemeralResponse(filters, snapshot, requestId, deadlineAtMs, baseTimingMs);
+    const response = await buildEphemeralResponse(filterKey, snapshot, snapshotHash, scopeIdentity, requestId, deadlineAtMs, baseTimingMs);
 
     if (response.report?.report) {
       const persistenceStartedAt = Date.now();
       const persistedRecord = await persistReportBestEffort({
         requestId,
         filters,
+        filterKey,
         snapshot,
         snapshotHash,
+        scopeIdentity,
         report: response.report.report,
         timingMs: response.report.debug?.timingMs ?? {}
       });
@@ -496,7 +505,6 @@ export const getReportStatus = async (
   filters: DashboardFilters,
   scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
 ): Promise<ReportStatusResponse> => {
-  prepareReportScope(scope);
   const reportsStoreIssue = await getReportsStoreIssue();
   if (reportsStoreIssue) {
     return {
