@@ -2,8 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { buildReportSnapshot, type DashboardFilters, type OperationalReport, type ReportSnapshotSummary } from "@grizcam/shared";
 import { appConfig } from "../config.js";
+import { STANDALONE_ANALYTICS_SCOPE, type AnalyticsScope } from "../embed/analyticsScope.js";
 import { createOpenRouterReportClient } from "./openrouter.js";
 import { ReportServiceError } from "./errors.js";
+import { buildReportScopeIdentity, buildScopedReportFilterKey } from "./scopeKey.js";
 import { hashReportSnapshot } from "./snapshot.js";
 import { selectLatestReportView, triggerReportGeneration } from "./service.js";
 import type { StoredReportRow } from "./storage.js";
@@ -100,6 +102,15 @@ const snapshot: ReportSnapshotSummary = {
   dataQualityCaveats: ["Voltage coverage is 62.5%, so power recommendations may understate blind spots."],
   narrativeContext: ["1 stale cameras detected: At least one camera has not reported recently."]
 };
+
+const embedScope = (overrides: Partial<AnalyticsScope> = {}): AnalyticsScope => ({
+  source: "embed_token",
+  organizationId: "org_123",
+  macs: ["A", "B"],
+  email: "operator@example.com",
+  role: "viewer",
+  ...overrides
+});
 
 const makeRow = (overrides: Partial<StoredReportRow> = {}): StoredReportRow => ({
   id: "report-1",
@@ -260,7 +271,8 @@ test("buildReportSnapshot selects compact operator-focused signals", () => {
 });
 
 test("hashReportSnapshot is stable for equivalent snapshots", () => {
-  const hashA = hashReportSnapshot(snapshot, "v1", "anthropic/claude-sonnet-4.6");
+  const scopeIdentity = buildReportScopeIdentity(STANDALONE_ANALYTICS_SCOPE);
+  const hashA = hashReportSnapshot(snapshot, "v1", "anthropic/claude-sonnet-4.6", scopeIdentity);
   const hashB = hashReportSnapshot(
     {
       ...snapshot,
@@ -270,10 +282,54 @@ test("hashReportSnapshot is stable for equivalent snapshots", () => {
       }
     },
     "v1",
-    "anthropic/claude-sonnet-4.6"
+    "anthropic/claude-sonnet-4.6",
+    scopeIdentity
   );
 
   assert.equal(hashA, hashB);
+});
+
+test("hashReportSnapshot includes report scope identity", () => {
+  const standaloneHash = hashReportSnapshot(
+    snapshot,
+    "v1",
+    "anthropic/claude-sonnet-4.6",
+    buildReportScopeIdentity(STANDALONE_ANALYTICS_SCOPE)
+  );
+  const embedHash = hashReportSnapshot(snapshot, "v1", "anthropic/claude-sonnet-4.6", buildReportScopeIdentity(embedScope()));
+  const otherOrgHash = hashReportSnapshot(
+    snapshot,
+    "v1",
+    "anthropic/claude-sonnet-4.6",
+    buildReportScopeIdentity(embedScope({ organizationId: "org_456" }))
+  );
+  const otherMacHash = hashReportSnapshot(
+    snapshot,
+    "v1",
+    "anthropic/claude-sonnet-4.6",
+    buildReportScopeIdentity(embedScope({ macs: ["C", "D"] }))
+  );
+
+  assert.notEqual(standaloneHash, embedHash);
+  assert.notEqual(embedHash, otherOrgHash);
+  assert.notEqual(embedHash, otherMacHash);
+});
+
+test("hashReportSnapshot is stable when scope mac order changes", () => {
+  assert.equal(
+    hashReportSnapshot(
+      snapshot,
+      "v1",
+      "anthropic/claude-sonnet-4.6",
+      buildReportScopeIdentity(embedScope({ macs: ["B", "A"] }))
+    ),
+    hashReportSnapshot(
+      snapshot,
+      "v1",
+      "anthropic/claude-sonnet-4.6",
+      buildReportScopeIdentity(embedScope({ macs: ["A", "B", "A"] }))
+    )
+  );
 });
 
 test("selectLatestReportView prefers latest ready report", () => {
@@ -838,8 +894,12 @@ test("manual generation returns an ephemeral report when persistent storage is u
 
   try {
     const result = await triggerReportGeneration(filters, snapshot, true, "ephemeral-test");
+    const scopedFilterKey = buildScopedReportFilterKey(filters, STANDALONE_ANALYTICS_SCOPE);
     assert.equal(result.status, "ready");
     assert.equal(result.report?.sourceMode, "ephemeral");
+    assert.equal(result.report?.normalizedFilterKey, scopedFilterKey);
+    assert.equal(result.report?.snapshot?.filterKey, scopedFilterKey);
+    assert.deepEqual(result.report?.debug?.scopeIdentity, buildReportScopeIdentity(STANDALONE_ANALYTICS_SCOPE));
     assert.equal(result.requestId, "ephemeral-test");
   } finally {
     appConfig.openRouterApiKey = originalKey;
