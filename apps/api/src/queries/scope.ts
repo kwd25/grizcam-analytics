@@ -19,6 +19,12 @@ type EffectiveMacs = {
 
 const unique = (items: string[]) => Array.from(new Set(items));
 
+const canApplyOrganizationScope = (scope: AnalyticsScope, options: ScopedRelationOptions) =>
+  scope.source === "embed_token" && Boolean(scope.organizationId) && options.supportsOrganizationId === true;
+
+const requiresNoRowsForEmptyEmbedScope = (scope: AnalyticsScope, options: ScopedRelationOptions) =>
+  scope.source === "embed_token" && unique(scope.macs).length === 0 && !canApplyOrganizationScope(scope, options);
+
 const withCondition = (fragment: SqlFragment, condition: string, value?: unknown): SqlFragment => {
   const values = value === undefined ? [...fragment.values] : [...fragment.values, value];
   const clause = value === undefined ? condition : condition.replace("?", `$${values.length}`);
@@ -64,11 +70,11 @@ export const buildScopedFilterClause = (
   };
   let fragment = buildFilterClause(scopedFilters, alias);
 
-  if (effectiveMacs.denied) {
+  if (effectiveMacs.denied || requiresNoRowsForEmptyEmbedScope(scope, options)) {
     fragment = withCondition(fragment, "1 = 0");
   }
 
-  if (scope.source === "embed_token" && scope.organizationId && options.supportsOrganizationId) {
+  if (canApplyOrganizationScope(scope, options)) {
     fragment = withCondition(fragment, `${alias}.organization_id = ?`, scope.organizationId);
   }
 
@@ -80,11 +86,15 @@ export const buildScopeOnlyWhere = (scope: AnalyticsScope, options: ScopedRelati
   let fragment: SqlFragment = { text: "", values: [] };
   const effectiveMacs = getEffectiveMacs([], scope);
 
+  if (requiresNoRowsForEmptyEmbedScope(scope, options)) {
+    fragment = withCondition(fragment, "1 = 0");
+  }
+
   if (effectiveMacs.macs.length > 0) {
     fragment = withCondition(fragment, `${alias}.mac = ANY(?::text[])`, effectiveMacs.macs);
   }
 
-  if (scope.source === "embed_token" && scope.organizationId && options.supportsOrganizationId) {
+  if (canApplyOrganizationScope(scope, options)) {
     fragment = withCondition(fragment, `${alias}.organization_id = ?`, scope.organizationId);
   }
 

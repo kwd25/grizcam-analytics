@@ -66,24 +66,35 @@ test("embed scope adds a zero-row predicate when requested macs are unauthorized
   assert.deepEqual(filter.values, []);
 });
 
-test("embed token with empty macs is org-level and preserves requested mac filters", () => {
-  const filter = buildScopedFilterClause({ ...baseFilters, mac: ["A"] }, embedScope([]));
-  assert.match(filter.text, /e\.mac = ANY\(\$1::text\[\]\)/);
-  assert.deepEqual(filter.values, [["A"]]);
-});
-
-test("organization predicates are emitted only when the relation supports them", () => {
-  const unsupported = buildScopedFilterClause(baseFilters, embedScope([], "org_123"), {
+test("embed token with empty macs and unsupported organization scope produces a zero-row predicate", () => {
+  const filter = buildScopedFilterClause(baseFilters, embedScope([]), {
     supportsOrganizationId: false
   });
-  assert.doesNotMatch(unsupported.text, /organization_id/);
-  assert.deepEqual(unsupported.values, []);
 
-  const supported = buildScopedFilterClause(baseFilters, embedScope([], "org_123"), {
+  assert.match(filter.text, /where 1 = 0/);
+  assert.doesNotMatch(filter.text, /organization_id/);
+  assert.deepEqual(filter.values, []);
+});
+
+test("embed token with empty macs and supported organization scope emits an organization-only predicate", () => {
+  const filter = buildScopedFilterClause(baseFilters, embedScope([], "org_123"), {
     supportsOrganizationId: true
   });
-  assert.match(supported.text, /e\.organization_id = \$1/);
-  assert.deepEqual(supported.values, ["org_123"]);
+
+  assert.doesNotMatch(filter.text, /1 = 0/);
+  assert.doesNotMatch(filter.text, /mac = ANY/);
+  assert.match(filter.text, /e\.organization_id = \$1/);
+  assert.deepEqual(filter.values, ["org_123"]);
+});
+
+test("embed token with macs and supported organization scope emits mac and organization predicates", () => {
+  const filter = buildScopedFilterClause(baseFilters, embedScope(["A", "B"], "org_123"), {
+    supportsOrganizationId: true
+  });
+
+  assert.match(filter.text, /e\.mac = ANY\(\$1::text\[\]\)/);
+  assert.match(filter.text, /e\.organization_id = \$2/);
+  assert.deepEqual(filter.values, [["A", "B"], "org_123"]);
 });
 
 test("scope values are parameterized and compose with date, q, and telemetry filters", () => {
@@ -105,6 +116,24 @@ test("scope values are parameterized and compose with date, q, and telemetry fil
   assert.deepEqual(filter.values, [["MAC_A"], "2025-01-01", "%bear%", 10]);
 });
 
+test("zero-row predicate does not shift parameter indexes for existing filters", () => {
+  const filter = buildScopedFilterClause(
+    {
+      ...baseFilters,
+      start_date: "2025-01-01",
+      q: "bear",
+      min_lux: 10
+    },
+    embedScope([])
+  );
+
+  assert.match(filter.text, /::date >= \$1::date/);
+  assert.match(filter.text, /ILIKE \$2/);
+  assert.match(filter.text, /e\.lux >= \$3/);
+  assert.match(filter.text, /1 = 0/);
+  assert.deepEqual(filter.values, ["2025-01-01", "%bear%", 10]);
+});
+
 test("scope-only where supports mac and optional organization predicates", () => {
   const filter = buildScopeOnlyWhere(embedScope(["A", "B"]), {
     alias: "d",
@@ -114,6 +143,26 @@ test("scope-only where supports mac and optional organization predicates", () =>
   assert.match(filter.text, /d\.mac = ANY\(\$1::text\[\]\)/);
   assert.match(filter.text, /d\.organization_id = \$2/);
   assert.deepEqual(filter.values, [["A", "B"], "org_123"]);
+});
+
+test("scope-only where denies empty mac embed scope when organization scope is unsupported", () => {
+  const filter = buildScopeOnlyWhere(embedScope([]), {
+    alias: "d",
+    supportsOrganizationId: false
+  });
+
+  assert.equal(filter.text, "where 1 = 0");
+  assert.deepEqual(filter.values, []);
+});
+
+test("scope-only where allows empty mac embed scope when organization scope is supported", () => {
+  const filter = buildScopeOnlyWhere(embedScope([], "org_123"), {
+    alias: "d",
+    supportsOrganizationId: true
+  });
+
+  assert.equal(filter.text, "where d.organization_id = $1");
+  assert.deepEqual(filter.values, ["org_123"]);
 });
 
 type QueryCall = {
@@ -173,6 +222,18 @@ test("getEvents applies the same embed mac scope to count and row queries", asyn
   assert.deepEqual(mockPool.calls[1].values.slice(0, 1), [["A"]]);
 });
 
+test("getEvents applies a zero-row predicate for empty mac embed scope when organization scope is unsupported", async () => {
+  mockPool.calls = [];
+
+  await dashboardModule.getEvents(baseEventQuery, embedScope([]));
+
+  assert.equal(mockPool.calls.length, 2);
+  assert.match(mockPool.calls[0].sql, /where 1 = 0/);
+  assert.match(mockPool.calls[1].sql, /where 1 = 0/);
+  assert.deepEqual(mockPool.calls[0].values, []);
+  assert.deepEqual(mockPool.calls[1].values.slice(0, -2), []);
+});
+
 test("getFilterOptions scopes device and event-derived option queries", async () => {
   mockPool.calls = [];
 
@@ -184,4 +245,18 @@ test("getFilterOptions scopes device and event-derived option queries", async ()
   assert.match(mockPool.calls[5].sql, /from events e\s+where e\.mac = ANY\(\$1::text\[\]\)/);
   assert.deepEqual(mockPool.calls[0].values, [["A", "B"]]);
   assert.deepEqual(mockPool.calls[2].values, [["A", "B"]]);
+});
+
+test("getFilterOptions applies a zero-row predicate for empty mac embed scope when organization scope is unsupported", async () => {
+  mockPool.calls = [];
+
+  await dashboardModule.getFilterOptions(embedScope([]));
+
+  assert.equal(mockPool.calls.length, 6);
+  assert.match(mockPool.calls[0].sql, /from dim_devices d where 1 = 0/);
+  assert.match(mockPool.calls[1].sql, /from dim_devices d where 1 = 0/);
+  assert.match(mockPool.calls[2].sql, /from events e where 1 = 0 and/);
+  assert.match(mockPool.calls[5].sql, /from events e\s+where 1 = 0/);
+  assert.deepEqual(mockPool.calls[0].values, []);
+  assert.deepEqual(mockPool.calls[2].values, []);
 });
