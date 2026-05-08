@@ -151,6 +151,18 @@ The API exposes safe diagnostics for Portal integration readiness:
 
 These endpoints report non-secret readiness for embed auth, frame origins, analytics DB connectivity, optional reports storage, organization scope schema support, and the dry-run sync scaffold. They do not return secrets, verify raw JWTs, connect to live Cosmos, or run sync automatically. See [docs/PORTAL_INTEGRATION_HEALTH.md](docs/PORTAL_INTEGRATION_HEALTH.md) for response behavior and caveats.
 
+## Portal Integration Handoff
+
+For the GrizCam Portal iframe/JWT integration, start with [docs/PORTAL_INTEGRATION.md](docs/PORTAL_INTEGRATION.md). The handoff guide links the required portal env vars, Hono route snippet, nav snippet, frame/CSP setup, data mapping, and health checks.
+
+Related docs:
+
+- [Portal integration guide](docs/PORTAL_INTEGRATION.md)
+- [Portal frame headers](docs/PORTAL_FRAME_HEADERS.md)
+- [Portal data mapping](docs/PORTAL_DATA_MAPPING.md)
+- [Portal integration health](docs/PORTAL_INTEGRATION_HEALTH.md)
+- [Portal patch snippets](docs/portal-patch/README.md)
+
 ## Deployment
 
 The project is configured for Vercel:
