@@ -17,6 +17,9 @@ type EffectiveMacs = {
   denied: boolean;
 };
 
+const EVENTS_SUPPORTS_ORGANIZATION_ID = true;
+const DIM_DEVICES_SUPPORTS_ORGANIZATION_ID = true;
+
 const unique = (items: string[]) => Array.from(new Set(items));
 
 const canApplyOrganizationScope = (scope: AnalyticsScope, options: ScopedRelationOptions) =>
@@ -100,3 +103,10 @@ export const buildScopeOnlyWhere = (scope: AnalyticsScope, options: ScopedRelati
 
   return fragment;
 };
+
+export const getAnalyticsScopeCapabilities = () => ({
+  organizationScopeSupported: true,
+  eventOrganizationIdSupported: EVENTS_SUPPORTS_ORGANIZATION_ID,
+  deviceOrganizationIdSupported: DIM_DEVICES_SUPPORTS_ORGANIZATION_ID,
+  unsupportedRelationEmptyMacBehavior: "deny_all" as const
+});
