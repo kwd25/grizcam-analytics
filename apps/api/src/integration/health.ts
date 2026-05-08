@@ -98,7 +98,7 @@ export const getIntegrationHealth = async (dependencies: IntegrationHealthDepend
   }
 
   if (embed.embed.authMode === "jwt" && !embed.embed.jwtConfigured) {
-    warnings.push("Embed JWT auth is enabled but EMBED_JWT_SECRET is not configured.");
+    warnings.push("Embed JWT auth is enabled but the JWT secret is not configured.");
   }
 
   return {

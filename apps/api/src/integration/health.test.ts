@@ -152,7 +152,22 @@ test("integration health does not include secret-like keys or secret values", as
       }
     }
   });
-  const serialized = JSON.stringify(health);
+  const misconfiguredHealth = await getIntegrationHealth({
+    analyticsPool,
+    reportsHealth: async () => reportsHealth,
+    syncWatermarkStatus: async () => okSyncWatermarkStatus,
+    config: {
+      ...appConfig,
+      embed: {
+        ...appConfig.embed,
+        authMode: "jwt",
+        jwtSecret: "",
+        tokenIssuer: "issuer",
+        tokenAudience: "audience"
+      }
+    }
+  });
+  const serialized = JSON.stringify([health, misconfiguredHealth]);
 
   for (const value of secretValues) {
     assert.equal(serialized.includes(value), false);
