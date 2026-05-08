@@ -28,7 +28,7 @@ const signEmbedToken = async (payload: Record<string, unknown>, config = jwtConf
   return jwt.sign(new TextEncoder().encode(config.jwtSecret));
 };
 
-const withEmbedServer = async <T>(config: EmbedAuthConfig, callback: (baseUrl: string) => Promise<T>) => {
+const withEmbedServer = async <T>(config: EmbedAuthConfig & { allowedFrameAncestors?: string[] }, callback: (baseUrl: string) => Promise<T>) => {
   const app = express();
   app.use("/api/embed", createEmbedRouter(config));
 
@@ -172,5 +172,37 @@ test("GET /api/embed/session returns safe misconfigured error without jwt secret
       error: "Embed authentication is not configured",
       code: "EMBED_AUTH_MISCONFIGURED"
     });
+  });
+});
+
+test("GET /api/embed/health reports safe jwt readiness without exposing secret", async () => {
+  await withEmbedServer(
+    {
+      ...jwtConfig,
+      allowedFrameAncestors: ["https://*.fly.dev"]
+    },
+    async (baseUrl) => {
+      const response = await fetch(`${baseUrl}/api/embed/health`);
+      const payload = await readJson(response);
+      const serialized = JSON.stringify(payload);
+
+      assert.equal(response.status, 200);
+      assert.equal((payload.embed as Record<string, unknown>).authMode, "jwt");
+      assert.equal((payload.embed as Record<string, unknown>).jwtConfigured, true);
+      assert.equal(typeof (payload.embed as Record<string, unknown>).jwtConfigured, "boolean");
+      assert.equal(serialized.includes(jwtSecret), false);
+      assert.equal(serialized.includes("EMBED_JWT_SECRET"), false);
+    }
+  );
+});
+
+test("GET /api/embed/health marks jwt mode without secret unavailable", async () => {
+  await withEmbedServer({ ...jwtConfig, jwtSecret: "" }, async (baseUrl) => {
+    const response = await fetch(`${baseUrl}/api/embed/health`);
+    const payload = await readJson(response);
+
+    assert.equal(response.status, 503);
+    assert.equal(payload.ok, false);
+    assert.equal((payload.embed as Record<string, unknown>).jwtConfigured, false);
   });
 });
