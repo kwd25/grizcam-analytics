@@ -190,6 +190,7 @@ export type DaySummaryResponse = {
 
 export type EventRecord = {
   id: string;
+  organizationId?: string | null;
   timestamp: string;
   localTimestamp: string;
   utcTimestamp?: string | null;
@@ -595,6 +596,13 @@ export const reportDebugSchema = z.object({
   requestId: z.string().nullable().optional(),
   lastErrorCode: z.string().nullable().optional(),
   lastErrorMessage: z.string().nullable().optional(),
+  scopeIdentity: z
+    .object({
+      source: z.enum(["standalone", "embed_token"]),
+      organizationId: z.string().nullable(),
+      macs: z.array(z.string())
+    })
+    .optional(),
   timingMs: z.record(z.string(), z.number()).optional()
 });
 export type ReportDebug = z.infer<typeof reportDebugSchema>;

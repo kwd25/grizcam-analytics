@@ -554,6 +554,7 @@ export const mapEventRow = (row: Record<string, unknown>) => {
 
   return {
     id: String(row.id),
+    organizationId: asString(row.organization_id),
     timestamp,
     localTimestamp: timestamp,
     utcTimestamp,

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { appConfig } from "../config.js";
 import { pool } from "../db.js";
+import { resolveAnalyticsScope } from "../embed/analyticsScope.js";
 import {
   getComposition,
   getDailyActivity,
@@ -43,12 +44,22 @@ dashboardRouter.get("/health", async (_request, response) => {
   }
 });
 
-dashboardRouter.get("/devices", async (_request, response) => {
-  response.json(await getDevices());
+dashboardRouter.get("/devices", async (request, response) => {
+  const scope = await resolveAnalyticsScope(request, response);
+  if (!scope) {
+    return;
+  }
+
+  response.json(await getDevices(scope));
 });
 
 dashboardRouter.get("/filters/options", async (request, response) => {
-  await withDashboardDiagnostics(request, response, "filters/options", getFilterOptions, (result) => ({
+  const scope = await resolveAnalyticsScope(request, response);
+  if (!scope) {
+    return;
+  }
+
+  await withDashboardDiagnostics(request, response, "filters/options", () => getFilterOptions(scope), (result) => ({
     cameras: result.cameras.length,
     macs: result.macs.length,
     categories: result.subjectCategories.length,
@@ -59,39 +70,79 @@ dashboardRouter.get("/filters/options", async (request, response) => {
 });
 
 dashboardRouter.get("/kpis", async (request, response) => {
-  response.json(await getKpis(parseFilters(request.query as Record<string, unknown>)));
+  const scope = await resolveAnalyticsScope(request, response);
+  if (!scope) {
+    return;
+  }
+
+  response.json(await getKpis(parseFilters(request.query as Record<string, unknown>), scope));
 });
 
 dashboardRouter.get("/charts/daily-activity", async (request, response) => {
-  response.json(await getDailyActivity(parseFilters(request.query as Record<string, unknown>)));
+  const scope = await resolveAnalyticsScope(request, response);
+  if (!scope) {
+    return;
+  }
+
+  response.json(await getDailyActivity(parseFilters(request.query as Record<string, unknown>), scope));
 });
 
 dashboardRouter.get("/charts/hourly-heatmap", async (request, response) => {
-  response.json(await getHourlyHeatmap(parseFilters(request.query as Record<string, unknown>)));
+  const scope = await resolveAnalyticsScope(request, response);
+  if (!scope) {
+    return;
+  }
+
+  response.json(await getHourlyHeatmap(parseFilters(request.query as Record<string, unknown>), scope));
 });
 
 dashboardRouter.get("/charts/time-of-day-composition", async (request, response) => {
-  response.json(await getTimeOfDayComposition(parseFilters(request.query as Record<string, unknown>)));
+  const scope = await resolveAnalyticsScope(request, response);
+  if (!scope) {
+    return;
+  }
+
+  response.json(await getTimeOfDayComposition(parseFilters(request.query as Record<string, unknown>), scope));
 });
 
 dashboardRouter.get("/charts/subject-by-camera", async (request, response) => {
-  response.json(await getSubjectByCamera(parseFilters(request.query as Record<string, unknown>)));
+  const scope = await resolveAnalyticsScope(request, response);
+  if (!scope) {
+    return;
+  }
+
+  response.json(await getSubjectByCamera(parseFilters(request.query as Record<string, unknown>), scope));
 });
 
 dashboardRouter.get("/charts/monthly-activity-by-category", async (request, response) => {
-  response.json(await getMonthlyActivityByCategory(parseFilters(request.query as Record<string, unknown>)));
+  const scope = await resolveAnalyticsScope(request, response);
+  if (!scope) {
+    return;
+  }
+
+  response.json(await getMonthlyActivityByCategory(parseFilters(request.query as Record<string, unknown>), scope));
 });
 
 dashboardRouter.get("/charts/composition", async (request, response) => {
-  response.json(await getComposition(parseFilters(request.query as Record<string, unknown>)));
+  const scope = await resolveAnalyticsScope(request, response);
+  if (!scope) {
+    return;
+  }
+
+  response.json(await getComposition(parseFilters(request.query as Record<string, unknown>), scope));
 });
 
 dashboardRouter.get("/overview", async (request, response) => {
+  const scope = await resolveAnalyticsScope(request, response);
+  if (!scope) {
+    return;
+  }
+
   await withDashboardDiagnostics(
     request,
     response,
     "overview",
-    () => getOverview(parseFilters(request.query as Record<string, unknown>)),
+    () => getOverview(parseFilters(request.query as Record<string, unknown>), scope),
     (result) => ({
       totalEvents: result.kpis.totalEvents,
       activeCameras: result.kpis.activeCameras,
@@ -103,15 +154,30 @@ dashboardRouter.get("/overview", async (request, response) => {
 });
 
 dashboardRouter.get("/analytics-lab", async (request, response) => {
-  response.json(await getAnalyticsLab(parseFilters(request.query as Record<string, unknown>)));
+  const scope = await resolveAnalyticsScope(request, response);
+  if (!scope) {
+    return;
+  }
+
+  response.json(await getAnalyticsLab(parseFilters(request.query as Record<string, unknown>), scope));
 });
 
 dashboardRouter.get("/day/:date/summary", async (request, response) => {
-  response.json(await getDaySummary(request.params.date, parseFilters(request.query as Record<string, unknown>)));
+  const scope = await resolveAnalyticsScope(request, response);
+  if (!scope) {
+    return;
+  }
+
+  response.json(await getDaySummary(request.params.date, parseFilters(request.query as Record<string, unknown>), scope));
 });
 
 dashboardRouter.get("/events", async (request, response) => {
-  response.json(await getEvents(parseEventQuery(request.query as Record<string, unknown>)));
+  const scope = await resolveAnalyticsScope(request, response);
+  if (!scope) {
+    return;
+  }
+
+  response.json(await getEvents(parseEventQuery(request.query as Record<string, unknown>), scope));
 });
 
 dashboardRouter.get("/events/export", async (request, response) => {
@@ -120,7 +186,12 @@ dashboardRouter.get("/events/export", async (request, response) => {
     return;
   }
 
-  const csv = await getEventsCsv(parseEventQuery(request.query as Record<string, unknown>));
+  const scope = await resolveAnalyticsScope(request, response);
+  if (!scope) {
+    return;
+  }
+
+  const csv = await getEventsCsv(parseEventQuery(request.query as Record<string, unknown>), scope);
   response.setHeader("content-type", "text/csv; charset=utf-8");
   response.setHeader("content-disposition", 'attachment; filename="grizcam-events.csv"');
   response.send(csv);

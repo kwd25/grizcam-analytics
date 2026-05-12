@@ -21,9 +21,23 @@ const parseOrigins = (value: string | undefined) =>
     .map((origin) => origin.trim())
     .filter(Boolean);
 
+type EmbedAuthMode = "disabled" | "jwt";
+
+const parseEmbedAuthMode = (value: string | undefined): EmbedAuthMode => {
+  const normalized = value?.trim() || "disabled";
+
+  if (normalized === "disabled" || normalized === "jwt") {
+    return normalized;
+  }
+
+  throw new Error('Invalid EMBED_AUTH_MODE: expected "disabled" or "jwt".');
+};
+
 const localOrigins = ["http://localhost:5173", "http://127.0.0.1:5173"];
 const configuredOrigins = parseOrigins(process.env.ALLOWED_ORIGINS);
 const allowedOrigins = configuredOrigins.length > 0 ? configuredOrigins : isProduction ? [] : localOrigins;
+const embedAuthMode = parseEmbedAuthMode(process.env.EMBED_AUTH_MODE);
+const embedJwtSecret = process.env.EMBED_JWT_SECRET ?? "";
 
 const databaseUrlCandidates = [
   ["database_url", process.env.DATABASE_URL],
@@ -82,6 +96,10 @@ if (isProduction && allowedOrigins.length === 0) {
   throw new Error("ALLOWED_ORIGINS is required in production.");
 }
 
+if (isProduction && embedAuthMode === "jwt" && !embedJwtSecret.trim()) {
+  throw new Error("EMBED_JWT_SECRET is required in production when EMBED_AUTH_MODE is jwt.");
+}
+
 export const appConfig = {
   environment: process.env.NODE_ENV ?? "development",
   isProduction,
@@ -107,6 +125,13 @@ export const appConfig = {
   apiRateLimit: {
     windowMs: parseNumber(process.env.API_RATE_LIMIT_WINDOW_MS, 60_000),
     max: parseNumber(process.env.API_RATE_LIMIT_MAX, 120)
+  },
+  embed: {
+    authMode: embedAuthMode,
+    jwtSecret: embedJwtSecret,
+    tokenIssuer: process.env.EMBED_TOKEN_ISSUER ?? "grizcam_portal",
+    tokenAudience: process.env.EMBED_TOKEN_AUDIENCE ?? "grizcam_analytics",
+    allowedFrameAncestors: parseOrigins(process.env.PORTAL_ALLOWED_FRAME_ANCESTORS)
   },
   exportsEnabled: parseBoolean(demoExportsEnabled, false),
   postgres,

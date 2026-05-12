@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from "react";
 import ReactDOM from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { EmbedSessionProvider } from "./lib/EmbedSessionProvider";
 import { appEnv } from "./lib/env";
 import "./styles.css";
 
@@ -12,6 +13,17 @@ const QueryPage = lazy(() => import("./pages/QueryPage").then((module) => ({ def
 const ReportsPage = lazy(() => import("./pages/ReportsPage").then((module) => ({ default: module.ReportsPage })));
 
 const queryClient = new QueryClient();
+const fallbackEmbedRoute = "/embed/overview";
+
+const sanitizeEmbedDefaultRoute = (defaultRoute: string | undefined) => {
+  if (!defaultRoute?.startsWith("/embed/")) {
+    return fallbackEmbedRoute;
+  }
+
+  return defaultRoute;
+};
+
+const withEmbedSession = (element: React.ReactElement) => <EmbedSessionProvider>{element}</EmbedSessionProvider>;
 
 document.title = appEnv.appTitle;
 
@@ -39,6 +51,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             <Route path="/analytics-lab" element={<Navigate to="/advanced" replace />} />
             <Route path="/query" element={<Navigate to="/" replace />} />
             <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/embed" element={withEmbedSession(<Navigate to={sanitizeEmbedDefaultRoute(appEnv.portalEmbed.defaultRoute)} replace />)} />
+            <Route path="/embed/overview" element={withEmbedSession(<DashboardPage />)} />
+            <Route path="/embed/ops" element={withEmbedSession(<OpsPage />)} />
+            <Route path="/embed/advanced" element={withEmbedSession(<AdvancedPage />)} />
+            <Route path="/embed/reports" element={withEmbedSession(<ReportsPage />)} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>

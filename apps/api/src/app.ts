@@ -5,8 +5,11 @@ import helmet from "helmet";
 import { ZodError } from "zod";
 import { appConfig } from "./config.js";
 import { dashboardRouter } from "./routes/dashboard.js";
+import { embedRouter } from "./routes/embed.js";
+import { integrationRouter } from "./routes/integration.js";
 import { queryRouter } from "./routes/query.js";
 import { reportsRouter } from "./routes/reports.js";
+import { syncRouter } from "./routes/sync.js";
 
 const buildCorsOrigin = () => {
   if (!appConfig.isProduction) {
@@ -53,6 +56,9 @@ export const createApp = () => {
   app.use(express.json({ limit: "100kb" }));
 
   app.use("/api", dashboardRouter);
+  app.use("/api/embed", embedRouter);
+  app.use("/api/sync", syncRouter);
+  app.use("/api/integration", integrationRouter);
   app.use("/api/reports", reportsRouter);
   app.use("/api/query", queryRouter);
 
