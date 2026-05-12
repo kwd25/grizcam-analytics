@@ -130,6 +130,39 @@ npm run build
 
 The root build compiles the shared package first, then the API, then the web app.
 
+## Portal Sync Scaffold
+
+The API includes a fixture-based scaffold for transforming GrizCam Portal Cosmos-style event JSON into the analytics Postgres event shape. It is dry-run-first and does not connect to live Cosmos unless a future task adds that implementation.
+
+```bash
+npm run sync:cosmos --workspace @grizcam/api -- --dry-run --fixture
+npm run sync:cosmos --workspace @grizcam/api -- --dry-run --file path/to/events.json
+```
+
+`--write` is local fixture/file only for now and requires `apps/api/migrations/003_portal_sync_scaffold.sql` on the target database. See [docs/PORTAL_DATA_MAPPING.md](docs/PORTAL_DATA_MAPPING.md) for the Portal field mapping, dry-run behavior, and future Cosmos configuration placeholders.
+
+## Integration Health Endpoints
+
+The API exposes safe diagnostics for Portal integration readiness:
+
+- `GET /api/embed/health`
+- `GET /api/sync/status`
+- `GET /api/integration/health`
+
+These endpoints report non-secret readiness for embed auth, frame origins, analytics DB connectivity, optional reports storage, organization scope schema support, and the dry-run sync scaffold. They do not return secrets, verify raw JWTs, connect to live Cosmos, or run sync automatically. See [docs/PORTAL_INTEGRATION_HEALTH.md](docs/PORTAL_INTEGRATION_HEALTH.md) for response behavior and caveats.
+
+## Portal Integration Handoff
+
+For the GrizCam Portal iframe/JWT integration, start with [docs/PORTAL_INTEGRATION.md](docs/PORTAL_INTEGRATION.md). The handoff guide links the required portal env vars, Hono route snippet, nav snippet, frame/CSP setup, data mapping, and health checks.
+
+Related docs:
+
+- [Portal integration guide](docs/PORTAL_INTEGRATION.md)
+- [Portal frame headers](docs/PORTAL_FRAME_HEADERS.md)
+- [Portal data mapping](docs/PORTAL_DATA_MAPPING.md)
+- [Portal integration health](docs/PORTAL_INTEGRATION_HEALTH.md)
+- [Portal patch snippets](docs/portal-patch/README.md)
+
 ## Deployment
 
 The project is configured for Vercel:
@@ -171,6 +204,9 @@ The API auto-ensures the `analytics_reports` table on startup for the active wri
 - `GET /api/day/:date/summary`
 - `GET /api/events`
 - `GET /api/events/export`
+- `GET /api/embed/health`
+- `GET /api/sync/status`
+- `GET /api/integration/health`
 - `POST /api/query/generate-sql`
 - `POST /api/query/follow-up`
 - `GET /api/reports/latest`
@@ -187,3 +223,5 @@ Report generation reuses existing `overview` and `analytics-lab` aggregates rath
 ## Synthetic Data
 
 The `synthetic/` folder contains utilities and notes for generating synthetic camera event records. Generated raw event exports are intentionally ignored and should not be committed.
+
+For Portal integration readiness, see [`docs/PORTAL_DATA_MAPPING.md`](docs/PORTAL_DATA_MAPPING.md) for the Cosmos-to-Postgres analytics field mapping and organization scope behavior, and [`docs/PORTAL_INTEGRATION_HEALTH.md`](docs/PORTAL_INTEGRATION_HEALTH.md) for safe health/debug endpoints.

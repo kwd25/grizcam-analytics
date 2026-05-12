@@ -7,6 +7,7 @@ import type {
 import type { FieldDef, PoolClient, QueryResult } from "pg";
 import { parse, toSql, type Expr, type SelectStatement, type Statement } from "pgsql-ast-parser";
 import { pool } from "../db.js";
+import { STANDALONE_ANALYTICS_SCOPE, type AnalyticsScope } from "../embed/analyticsScope.js";
 import { queryCatalog } from "./catalog.js";
 
 type ValidationFacts = {
@@ -44,6 +45,10 @@ const STATEMENT_TIMEOUT_MS = 5_000;
 const MAX_SQL_LENGTH = 20_000;
 const DISALLOWED_KEYWORDS =
   /\b(insert|update|delete|drop|alter|truncate|create|grant|revoke|comment|copy|refresh|vacuum|analyze|do|begin|commit|rollback|call|execute|prepare|deallocate|listen|notify)\b/i;
+const prepareQueryScope = (scope: AnalyticsScope) => {
+  // Scoped query execution must be enforced before any embed query route is exposed.
+  void scope;
+};
 
 const pushIssue = (issues: QueryValidationIssue[], code: QueryValidationIssue["code"], message: string) => {
   if (!issues.some((issue) => issue.code === code && issue.message === message)) {
@@ -621,7 +626,11 @@ const normalizeExecutionError = (error: unknown) => {
   } as QueryValidationIssue;
 };
 
-export const runSafeQuery = async (sql: string): Promise<QueryRunResponse> => {
+export const runSafeQuery = async (
+  sql: string,
+  scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
+): Promise<QueryRunResponse> => {
+  prepareQueryScope(scope);
   const validation = validateQuerySql(sql);
   if (!validation.ok || !validation.normalizedSql) {
     return {
@@ -657,7 +666,8 @@ export const runSafeQuery = async (sql: string): Promise<QueryRunResponse> => {
   }
 };
 
-export const exportSafeQueryCsv = async (sql: string) => {
+export const exportSafeQueryCsv = async (sql: string, scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE) => {
+  prepareQueryScope(scope);
   const validation = validateQuerySql(sql);
   if (!validation.ok || !validation.normalizedSql) {
     return {

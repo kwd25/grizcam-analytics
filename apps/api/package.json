@@ -10,7 +10,9 @@
     "test": "tsx --test src/**/*.test.ts",
     "lint": "tsc -p tsconfig.json --noEmit",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "smoke:dashboard": "tsx src/smoke/dashboardAggregates.ts"
+    "smoke:dashboard": "tsx src/smoke/dashboardAggregates.ts",
+    "sync:cosmos": "tsx src/sync/runCosmosSync.ts",
+    "sync:cosmos:dry-run": "tsx src/sync/runCosmosSync.ts --dry-run --fixture"
   },
   "dependencies": {
     "@grizcam/shared": "0.1.0",
@@ -19,6 +21,7 @@
     "express": "^5.1.0",
     "express-rate-limit": "^8.1.0",
     "helmet": "^8.1.0",
+    "jose": "^6.2.3",
     "pg": "^8.16.3",
     "pgsql-ast-parser": "^12.0.2",
     "zod": "^4.1.12"

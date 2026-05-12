@@ -3,6 +3,8 @@
 This module creates deterministic Yellowstone synthetic event data for the full 2025 calendar year, seeds a local Postgres database, and now also exports a raw-style JSON dataset for ops demos.
 
 The generated `events` table preserves the analytics-friendly columns used by the dashboard while also carrying a much richer raw-event shape. The synthetic raw export intentionally includes operational fields such as:
+- `organizationId`
+- `organization_id`
 - `utc_timestamp_off`
 - `timezone`
 - `tag`
@@ -34,6 +36,12 @@ Time handling assumptions:
 - `utc_timestamp` stores the UTC equivalent, also as a naive Postgres `TIMESTAMP`.
 - `utc_timestamp_off` and `timezone` reflect the same local-to-UTC mapping in the raw export, with a very small minority of intentionally messy rows.
 - This keeps the data easy to work with in Metabase while preserving the logical relationship between local and UTC values.
+
+Organization scope assumptions:
+- Synthetic devices and events include deterministic organization IDs.
+- `org_yellowstone_north` owns Lamar Valley North and Mammoth Trail Edge.
+- `org_yellowstone_south` owns Hayden Valley South, Old Faithful Perimeter, and Yellowstone Lake Overlook.
+- `organization_id` is nullable in analytics schema so older demo data remains compatible, but new synthetic seeds populate it consistently.
 
 ## Run
 
@@ -86,6 +94,7 @@ The script prints:
 ## Developer Note
 
 Fields added:
+- organization scope fields `organizationId` and `organization_id`
 - raw pipeline fields for upload / AI / JSON processing state and timestamps
 - raw capture fields such as `utc_timestamp_off`, `timezone`, `tag`, and `bearing`
 - raw analysis fields `analysis` and `ai_description`

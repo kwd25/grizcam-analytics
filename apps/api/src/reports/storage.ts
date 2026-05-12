@@ -80,6 +80,7 @@ const mapRow = (row: Record<string, unknown>): StoredReportRow => ({
 const mergeDebug = (current: ReportDebug | null | undefined, patch: Partial<ReportDebug>): ReportDebug => ({
   lastErrorCode: patch.lastErrorCode ?? current?.lastErrorCode ?? null,
   lastErrorMessage: patch.lastErrorMessage ?? current?.lastErrorMessage ?? null,
+  scopeIdentity: patch.scopeIdentity ?? current?.scopeIdentity,
   timingMs: {
     ...(current?.timingMs ?? {}),
     ...(patch.timingMs ?? {})
@@ -165,7 +166,9 @@ export const createQueuedReport = async (input: {
   promptVersion: string;
   model: string;
   filters: DashboardFilters;
+  debug?: Partial<ReportDebug>;
 }) => {
+  const debug = mergeDebug(null, input.debug ?? {});
   const result = await requireReportsPool().query(
     `
     insert into analytics_reports (
@@ -182,7 +185,7 @@ export const createQueuedReport = async (input: {
     values ($1, $2, $3, $4, 'queued', 'queued', $5::jsonb, $6::jsonb, now())
     returning *
     `,
-    [input.id, input.filterKey, input.promptVersion, input.model, JSON.stringify(input.filters), JSON.stringify({ timingMs: {} })]
+    [input.id, input.filterKey, input.promptVersion, input.model, JSON.stringify(input.filters), JSON.stringify(debug)]
   );
 
   return mapRow(result.rows[0]);

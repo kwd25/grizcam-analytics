@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import type { ReportSnapshotSummary } from "@grizcam/shared";
 import { buildReportFilterKey, normalizeReportFilters } from "@grizcam/shared";
+import type { ReportScopeIdentity } from "./scopeKey.js";
 
 const stableSerialize = (value: unknown): string => {
   if (Array.isArray(value)) {
@@ -17,7 +18,12 @@ const stableSerialize = (value: unknown): string => {
   return JSON.stringify(value);
 };
 
-export const hashReportSnapshot = (snapshot: ReportSnapshotSummary, promptVersion: string, model: string) =>
+export const hashReportSnapshot = (
+  snapshot: ReportSnapshotSummary,
+  promptVersion: string,
+  model: string,
+  scopeIdentity: ReportScopeIdentity
+) =>
   createHash("sha256")
     .update(
       stableSerialize({
@@ -27,7 +33,8 @@ export const hashReportSnapshot = (snapshot: ReportSnapshotSummary, promptVersio
           filterKey: buildReportFilterKey(snapshot.filters)
         },
         promptVersion,
-        model
+        model,
+        scopeIdentity
       })
     )
     .digest("hex");

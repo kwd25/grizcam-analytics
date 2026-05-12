@@ -40,8 +40,9 @@ import type {
   VoltageTrendPoint
 } from "@grizcam/shared";
 import { pool } from "../db.js";
+import { STANDALONE_ANALYTICS_SCOPE, type AnalyticsScope } from "../embed/analyticsScope.js";
+import { buildScopedFilterClause, buildScopeOnlyWhere, type SqlFragment } from "./scope.js";
 import {
-  buildFilterClause,
   getEventOrderBy,
   mapEventRow,
   normalizedAnalysisSummarySql,
@@ -68,22 +69,69 @@ import {
   rawBatteryPercentageSql
 } from "../utils/sql.js";
 
-export const getDevices = async () => {
+const EVENTS_SUPPORTS_ORGANIZATION_ID = true;
+const DIM_DEVICES_SUPPORTS_ORGANIZATION_ID = true;
+
+const buildEventFilterClause = (filters: DashboardFilters, scope: AnalyticsScope, alias = "e") =>
+  buildScopedFilterClause(filters, scope, {
+    alias,
+    supportsOrganizationId: EVENTS_SUPPORTS_ORGANIZATION_ID
+  });
+
+const buildEventScopeWhere = (scope: AnalyticsScope, alias = "e") =>
+  buildScopeOnlyWhere(scope, {
+    alias,
+    supportsOrganizationId: EVENTS_SUPPORTS_ORGANIZATION_ID
+  });
+
+const buildDeviceScopeWhere = (scope: AnalyticsScope, alias = "d") =>
+  buildScopeOnlyWhere(scope, {
+    alias,
+    supportsOrganizationId: DIM_DEVICES_SUPPORTS_ORGANIZATION_ID
+  });
+
+const withRequiredWhereCondition = (fragment: SqlFragment, condition: string): SqlFragment => {
+  const existing = fragment.text.trim().replace(/^where\s+/i, "");
+  return {
+    text: existing ? `where ${existing} and ${condition}` : `where ${condition}`,
+    values: fragment.values
+  };
+};
+
+export const getDevices = async (scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE) => {
+  const deviceScope = buildDeviceScopeWhere(scope, "d");
   const result = await pool.query(
-    `select mac, camera_name, location_name, location_code, latitude, longitude, camera_profile, notes
-     from dim_devices
-     order by camera_name asc`
+    `select d.mac, d.camera_name, d.location_name, d.location_code, d.latitude, d.longitude, d.camera_profile, d.notes
+     from dim_devices d
+     ${deviceScope.text}
+     order by d.camera_name asc`,
+    deviceScope.values
   );
   return result.rows;
 };
 
-export const getFilterOptions = async (): Promise<FilterOptionsResponse> => {
+export const getFilterOptions = async (scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE): Promise<FilterOptionsResponse> => {
+  const deviceScope = buildDeviceScopeWhere(scope, "d");
+  const eventScope = buildEventScopeWhere(scope, "e");
+  const timeBucketScope = withRequiredWhereCondition(eventScope, `${normalizedTimeOfDayBucketSql("e")} is not null`);
+  const categoryScope = withRequiredWhereCondition(eventScope, `${normalizedSubjectCategorySql("e")} is not null`);
+  const classScope = withRequiredWhereCondition(eventScope, `${normalizedSubjectClassSql("e")} is not null`);
+
   const [cameras, macs, timeBuckets, categories, classes, ranges] = await Promise.all([
-    pool.query(`select distinct camera_name from dim_devices order by camera_name asc`),
-    pool.query(`select mac, camera_name from dim_devices order by camera_name asc`),
-    pool.query(`select distinct ${normalizedTimeOfDayBucketSql("e")} as time_of_day_bucket from events e where ${normalizedTimeOfDayBucketSql("e")} is not null order by 1 asc`),
-    pool.query(`select distinct ${normalizedSubjectCategorySql("e")} as subject_category from events e where ${normalizedSubjectCategorySql("e")} is not null order by 1 asc`),
-    pool.query(`select distinct ${normalizedSubjectClassSql("e")} as subject_class from events e where ${normalizedSubjectClassSql("e")} is not null order by 1 asc`),
+    pool.query(`select distinct d.camera_name from dim_devices d ${deviceScope.text} order by d.camera_name asc`, deviceScope.values),
+    pool.query(`select d.mac, d.camera_name from dim_devices d ${deviceScope.text} order by d.camera_name asc`, deviceScope.values),
+    pool.query(
+      `select distinct ${normalizedTimeOfDayBucketSql("e")} as time_of_day_bucket from events e ${timeBucketScope.text} order by 1 asc`,
+      timeBucketScope.values
+    ),
+    pool.query(
+      `select distinct ${normalizedSubjectCategorySql("e")} as subject_category from events e ${categoryScope.text} order by 1 asc`,
+      categoryScope.values
+    ),
+    pool.query(
+      `select distinct ${normalizedSubjectClassSql("e")} as subject_class from events e ${classScope.text} order by 1 asc`,
+      classScope.values
+    ),
     pool.query(
       `select
          min(lux)::int as min_lux,
@@ -92,7 +140,9 @@ export const getFilterOptions = async (): Promise<FilterOptionsResponse> => {
          ceil(max(temperature))::int as max_temperature,
          min(${normalizedHeatLevelSql("e")})::int as min_heat_level,
          max(${normalizedHeatLevelSql("e")})::int as max_heat_level
-       from events e`
+       from events e
+       ${eventScope.text}`,
+      eventScope.values
     )
   ]);
 
@@ -112,8 +162,8 @@ export const getFilterOptions = async (): Promise<FilterOptionsResponse> => {
   };
 };
 
-const filteredEventsCte = (filters: DashboardFilters, alias = "e") => {
-  const filter = buildFilterClause(filters, alias);
+const filteredEventsCte = (filters: DashboardFilters, scope: AnalyticsScope, alias = "e") => {
+  const filter = buildEventFilterClause(filters, scope, alias);
 
   const text = `
     with filtered as (
@@ -123,6 +173,7 @@ const filteredEventsCte = (filters: DashboardFilters, alias = "e") => {
     base as (
       select
         id,
+        organization_id,
         ${normalizedCameraNameSql("filtered")} as camera_name,
         filtered.name,
         filtered.mac,
@@ -376,8 +427,11 @@ const buildOverviewInsights = (input: {
   return insights.slice(0, 4);
 };
 
-export const getKpis = async (filters: DashboardFilters): Promise<KpiResponse> => {
-  const filter = buildFilterClause(filters);
+export const getKpis = async (
+  filters: DashboardFilters,
+  scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
+): Promise<KpiResponse> => {
+  const filter = buildEventFilterClause(filters, scope);
   const result = await pool.query(
     `
     with filtered as (
@@ -463,8 +517,11 @@ export const getKpis = async (filters: DashboardFilters): Promise<KpiResponse> =
   };
 };
 
-export const getDailyActivity = async (filters: DashboardFilters): Promise<DailyActivityPoint[]> => {
-  const filter = buildFilterClause(filters);
+export const getDailyActivity = async (
+  filters: DashboardFilters,
+  scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
+): Promise<DailyActivityPoint[]> => {
+  const filter = buildEventFilterClause(filters, scope);
   const result = await pool.query(
     `
     with filtered as (
@@ -485,8 +542,11 @@ export const getDailyActivity = async (filters: DashboardFilters): Promise<Daily
   return result.rows as DailyActivityPoint[];
 };
 
-export const getHourlyHeatmap = async (filters: DashboardFilters): Promise<HourlyHeatmapPoint[]> => {
-  const filter = buildFilterClause(filters);
+export const getHourlyHeatmap = async (
+  filters: DashboardFilters,
+  scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
+): Promise<HourlyHeatmapPoint[]> => {
+  const filter = buildEventFilterClause(filters, scope);
   const result = await pool.query(
     `
     with filtered as (
@@ -507,8 +567,11 @@ export const getHourlyHeatmap = async (filters: DashboardFilters): Promise<Hourl
   return result.rows as HourlyHeatmapPoint[];
 };
 
-export const getTimeOfDayComposition = async (filters: DashboardFilters): Promise<TimeOfDayCompositionPoint[]> => {
-  const filter = buildFilterClause(filters);
+export const getTimeOfDayComposition = async (
+  filters: DashboardFilters,
+  scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
+): Promise<TimeOfDayCompositionPoint[]> => {
+  const filter = buildEventFilterClause(filters, scope);
   const result = await pool.query(
     `
     with filtered as (
@@ -530,8 +593,11 @@ export const getTimeOfDayComposition = async (filters: DashboardFilters): Promis
   return result.rows as TimeOfDayCompositionPoint[];
 };
 
-export const getSubjectByCamera = async (filters: DashboardFilters): Promise<SubjectCameraHeatmapPoint[]> => {
-  const filter = buildFilterClause(filters);
+export const getSubjectByCamera = async (
+  filters: DashboardFilters,
+  scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
+): Promise<SubjectCameraHeatmapPoint[]> => {
+  const filter = buildEventFilterClause(filters, scope);
   const result = await pool.query(
     `
     with filtered as (
@@ -552,8 +618,11 @@ export const getSubjectByCamera = async (filters: DashboardFilters): Promise<Sub
   return result.rows as SubjectCameraHeatmapPoint[];
 };
 
-export const getMonthlyActivityByCategory = async (filters: DashboardFilters): Promise<MonthlyActivityCategoryPoint[]> => {
-  const filter = buildFilterClause(filters);
+export const getMonthlyActivityByCategory = async (
+  filters: DashboardFilters,
+  scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
+): Promise<MonthlyActivityCategoryPoint[]> => {
+  const filter = buildEventFilterClause(filters, scope);
   const result = await pool.query(
     `
     with filtered as (
@@ -575,8 +644,11 @@ export const getMonthlyActivityByCategory = async (filters: DashboardFilters): P
   return result.rows as MonthlyActivityCategoryPoint[];
 };
 
-export const getComposition = async (filters: DashboardFilters): Promise<CompositionPoint[]> => {
-  const filter = buildFilterClause(filters);
+export const getComposition = async (
+  filters: DashboardFilters,
+  scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
+): Promise<CompositionPoint[]> => {
+  const filter = buildEventFilterClause(filters, scope);
   const result = await pool.query(
     `
     with filtered as (
@@ -595,8 +667,11 @@ export const getComposition = async (filters: DashboardFilters): Promise<Composi
   return result.rows as CompositionPoint[];
 };
 
-export const getOverview = async (filters: DashboardFilters): Promise<OverviewResponse> => {
-  const cte = filteredEventsCte(filters);
+export const getOverview = async (
+  filters: DashboardFilters,
+  scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
+): Promise<OverviewResponse> => {
+  const cte = filteredEventsCte(filters, scope);
 
   const [
     kpisResult,
@@ -758,6 +833,7 @@ export const getOverview = async (filters: DashboardFilters): Promise<OverviewRe
       ${cte.text}
       select
         id,
+        organization_id,
         to_char(local_timestamp, 'YYYY-MM-DD"T"HH24:MI:SS') as local_timestamp,
         to_char(utc_timestamp, 'YYYY-MM-DD"T"HH24:MI:SS') as utc_timestamp,
         to_char(utc_timestamp_off, 'YYYY-MM-DD"T"HH24:MI:SS') as utc_timestamp_off,
@@ -1304,8 +1380,11 @@ const buildAdvancedInsights = (leaders: CameraForecastLeader[], novelEvents: Nov
   return insights.slice(0, 4);
 };
 
-export const getAnalyticsLab = async (filters: DashboardFilters): Promise<AnalyticsLabResponse> => {
-  const cte = filteredEventsCte(filters);
+export const getAnalyticsLab = async (
+  filters: DashboardFilters,
+  scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
+): Promise<AnalyticsLabResponse> => {
+  const cte = filteredEventsCte(filters, scope);
 
   const [
     hourCategoryResult,
@@ -1632,9 +1711,13 @@ export const getAnalyticsLab = async (filters: DashboardFilters): Promise<Analyt
   };
 };
 
-export const getDaySummary = async (date: string, filters: DashboardFilters): Promise<DaySummaryResponse> => {
+export const getDaySummary = async (
+  date: string,
+  filters: DashboardFilters,
+  scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
+): Promise<DaySummaryResponse> => {
   const dayFilters = { ...filters, start_date: date, end_date: date };
-  const filter = buildFilterClause(dayFilters);
+  const filter = buildEventFilterClause(dayFilters, scope);
 
   const [summaryResult, hourlyResult, subjectResult, cameraResult, eventsResult] = await Promise.all([
     pool.query(
@@ -1705,6 +1788,7 @@ export const getDaySummary = async (date: string, filters: DashboardFilters): Pr
       )
       select
         id,
+        organization_id,
         to_char(${normalizedTimestampSql("filtered")}, 'YYYY-MM-DD"T"HH24:MI:SS') as "timestamp",
         to_char(${normalizedTimestampSql("filtered")}, 'YYYY-MM-DD"T"HH24:MI:SS') as local_timestamp,
         ${normalizedCameraNameSql("filtered")} as camera_name,
@@ -1786,8 +1870,11 @@ export const getDaySummary = async (date: string, filters: DashboardFilters): Pr
   };
 };
 
-export const getEvents = async (query: EventQuery): Promise<EventsResponse> => {
-  const filter = buildFilterClause(query);
+export const getEvents = async (
+  query: EventQuery,
+  scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
+): Promise<EventsResponse> => {
+  const filter = buildEventFilterClause(query, scope);
   const orderBy = getEventOrderBy(query);
   const offset = (query.page - 1) * query.page_size;
   const values = [...filter.values, query.page_size, offset];
@@ -1805,6 +1892,7 @@ export const getEvents = async (query: EventQuery): Promise<EventsResponse> => {
       `
       select
         id,
+        organization_id,
         to_char(${normalizedTimestampSql("e")}, 'YYYY-MM-DD"T"HH24:MI:SS') as "timestamp",
         to_char(${normalizedTimestampSql("e")}, 'YYYY-MM-DD"T"HH24:MI:SS') as local_timestamp,
         ${normalizedCameraNameSql("e")} as camera_name,
@@ -1884,8 +1972,11 @@ export const getEvents = async (query: EventQuery): Promise<EventsResponse> => {
   };
 };
 
-export const getEventsCsv = async (query: EventQuery): Promise<string> => {
-  const filter = buildFilterClause(query);
+export const getEventsCsv = async (
+  query: EventQuery,
+  scope: AnalyticsScope = STANDALONE_ANALYTICS_SCOPE
+): Promise<string> => {
+  const filter = buildEventFilterClause(query, scope);
   const orderBy = getEventOrderBy(query);
   const result = await pool.query(
     `

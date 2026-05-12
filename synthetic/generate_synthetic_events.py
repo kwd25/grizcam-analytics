@@ -105,6 +105,7 @@ ChoiceT = TypeVar("ChoiceT")
 @dataclass(frozen=True)
 class CameraProfile:
     mac: str
+    organization_id: str
     name: str
     camera_name: str
     location_name: str
@@ -135,6 +136,7 @@ class CameraProfile:
 CAMERA_PROFILES: Tuple[CameraProfile, ...] = (
     CameraProfile(
         mac="F0F5BD77B201",
+        organization_id="org_yellowstone_north",
         name="LamarNorth1",
         camera_name="Lamar Valley North",
         location_name="Lamar Valley North",
@@ -174,6 +176,7 @@ CAMERA_PROFILES: Tuple[CameraProfile, ...] = (
     ),
     CameraProfile(
         mac="F0F5BD77B202",
+        organization_id="org_yellowstone_south",
         name="HaydenSouth1",
         camera_name="Hayden Valley South",
         location_name="Hayden Valley South",
@@ -213,6 +216,7 @@ CAMERA_PROFILES: Tuple[CameraProfile, ...] = (
     ),
     CameraProfile(
         mac="F0F5BD77B203",
+        organization_id="org_yellowstone_north",
         name="MammothEdge1",
         camera_name="Mammoth Trail Edge",
         location_name="Mammoth Trail Edge",
@@ -252,6 +256,7 @@ CAMERA_PROFILES: Tuple[CameraProfile, ...] = (
     ),
     CameraProfile(
         mac="F0F5BD77B204",
+        organization_id="org_yellowstone_south",
         name="OldFaithful1",
         camera_name="Old Faithful Perimeter",
         location_name="Old Faithful Perimeter",
@@ -291,6 +296,7 @@ CAMERA_PROFILES: Tuple[CameraProfile, ...] = (
     ),
     CameraProfile(
         mac="F0F5BD77B205",
+        organization_id="org_yellowstone_south",
         name="LakeOverlook1",
         camera_name="Yellowstone Lake Overlook",
         location_name="Yellowstone Lake Overlook",
@@ -439,6 +445,7 @@ def create_schema(conn) -> None:
     ddl = """
     CREATE TABLE dim_devices (
         mac TEXT PRIMARY KEY,
+        organization_id TEXT,
         camera_name TEXT NOT NULL,
         location_name TEXT NOT NULL,
         location_code TEXT NOT NULL,
@@ -450,6 +457,7 @@ def create_schema(conn) -> None:
 
     CREATE TABLE events (
         id TEXT PRIMARY KEY,
+        organization_id TEXT,
         name TEXT,
         mac TEXT NOT NULL REFERENCES dim_devices(mac),
         event TEXT NOT NULL,
@@ -496,6 +504,7 @@ def create_schema(conn) -> None:
 
     CREATE TABLE daily_camera_summary (
         date DATE NOT NULL,
+        organization_id TEXT,
         mac TEXT NOT NULL REFERENCES dim_devices(mac),
         camera_name TEXT NOT NULL,
         total_rows INTEGER NOT NULL,
@@ -516,11 +525,16 @@ def create_schema(conn) -> None:
     );
 
     CREATE INDEX idx_events_mac_utc ON events(mac, utc_timestamp);
+    CREATE INDEX idx_events_organization_id ON events(organization_id);
+    CREATE INDEX idx_events_organization_mac ON events(organization_id, mac);
     CREATE INDEX idx_events_timestamp ON events(timestamp);
     CREATE INDEX idx_events_time_bucket ON events(time_of_day_bucket);
     CREATE INDEX idx_events_subject_category ON events(subject_category);
     CREATE INDEX idx_events_camera_timestamp ON events(camera_name, timestamp);
+    CREATE INDEX idx_dim_devices_organization_id ON dim_devices(organization_id);
+    CREATE INDEX idx_dim_devices_organization_mac ON dim_devices(organization_id, mac);
     CREATE INDEX idx_daily_camera_summary_date_mac ON daily_camera_summary(date, mac);
+    CREATE INDEX idx_daily_camera_summary_organization_mac_date ON daily_camera_summary(organization_id, mac, date);
     """
     with conn.cursor() as cur:
         cur.execute(ddl)
@@ -531,6 +545,7 @@ def insert_dim_devices(conn, devices: Sequence[CameraProfile]) -> None:
     rows = [
         (
             device.mac,
+            device.organization_id,
             device.camera_name,
             device.location_name,
             device.location_code,
@@ -546,7 +561,7 @@ def insert_dim_devices(conn, devices: Sequence[CameraProfile]) -> None:
             cur,
             """
             INSERT INTO dim_devices (
-                mac, camera_name, location_name, location_code, latitude, longitude,
+                mac, organization_id, camera_name, location_name, location_code, latitude, longitude,
                 camera_profile, notes
             ) VALUES %s
             """,
@@ -1171,6 +1186,8 @@ def formatted_export_row(row: Dict[str, Any], rng: random.Random) -> Dict[str, A
 def build_export_row(row: Dict[str, Any]) -> Dict[str, Any]:
     # Raw export intentionally excludes Cosmos internals such as _rid/_etag/_ts.
     ordered_keys = [
+        "organizationId",
+        "organization_id",
         "name",
         "mac",
         "utc_timestamp",
@@ -1260,6 +1277,8 @@ def build_row(
     )
     return {
         "id": filename,
+        "organizationId": profile.organization_id,
+        "organization_id": profile.organization_id,
         "name": profile.name,
         "mac": profile.mac,
         "event": event_key,
@@ -1517,7 +1536,7 @@ def generate_events(devices: Sequence[CameraProfile], seed: int) -> List[Dict[st
 
 def bulk_insert_events(conn, rows: Sequence[Dict[str, Any]]) -> None:
     columns = """
-        id, name, mac, event, utc_timestamp, timestamp, sequence, sensor, location,
+        id, organization_id, name, mac, event, utc_timestamp, timestamp, sequence, sensor, location,
         latitude, longitude, temperature, humidity, pressure, voltage, bearing,
         "batteryPercentage", battery_percentage, lux, "heatLevel", heat_level,
         "fileType", file_type, filename, image_blob_url, uploaded, upload, created,
@@ -1528,6 +1547,7 @@ def bulk_insert_events(conn, rows: Sequence[Dict[str, Any]]) -> None:
     values = [
         (
             row["id"],
+            row["organization_id"],
             row["name"],
             row["mac"],
             row["event"],
@@ -1586,13 +1606,14 @@ def build_daily_summary(conn) -> None:
         cur.execute(
             """
             INSERT INTO daily_camera_summary (
-                date, mac, camera_name, total_rows, unique_event_groups,
+                date, organization_id, mac, camera_name, total_rows, unique_event_groups,
                 wildlife_rows, human_rows, vehicle_rows, empty_scene_rows,
                 morning_rows, afternoon_rows, evening_rows, night_rows,
                 avg_temperature, avg_lux, avg_heat_level, avg_battery_percentage
             )
             SELECT
                 DATE(timestamp) AS date,
+                organization_id,
                 mac,
                 camera_name,
                 COUNT(*) AS total_rows,
@@ -1610,8 +1631,8 @@ def build_daily_summary(conn) -> None:
                 ROUND(AVG(heat_level)::numeric, 2)::double precision AS avg_heat_level,
                 ROUND(AVG(battery_percentage)::numeric, 2)::double precision AS avg_battery_percentage
             FROM events
-            GROUP BY DATE(timestamp), mac, camera_name
-            ORDER BY DATE(timestamp), mac
+            GROUP BY DATE(timestamp), organization_id, mac, camera_name
+            ORDER BY DATE(timestamp), organization_id, mac
             """
         )
     conn.commit()
