@@ -5,16 +5,17 @@ import { AppShell } from "../components/AppShell";
 import { FilterBar } from "../components/FilterBar";
 import { SectionCard } from "../components/SectionCard";
 import { api } from "../lib/api";
+import { axisStroke, BRAND, gridStroke, tooltipStyle } from "../lib/chartColors";
 import { appEnv } from "../lib/env";
 import { classNames, formatNumber, formatSignedNumber, titleCase } from "../lib/utils";
 import { useDashboardFilters } from "../hooks/useDashboardFilters";
 import { useReportPrefetch } from "../hooks/useReportPrefetch";
 
 const QueryState = ({ error }: { error?: Error | null }) => (
-  <div className="panel rounded-3xl border border-white/10 bg-white/[0.03] px-4 py-10 text-center">
-    <div className="text-sm font-medium text-white">{error ? "This section is temporarily unavailable" : "Loading advanced section"}</div>
+  <div className="panel rounded-lg border border-white/10 bg-white/[0.03] px-4 py-10 text-center">
+    <div className="text-sm font-medium text-white">{error ? "Section unavailable" : "Loading section"}</div>
     <div className="mt-2 text-sm text-zinc-400">
-      {error ? "The analytics endpoint returned an unexpected response. Try refreshing in a moment." : "Scoring predictions, novelty, and category shifts."}
+      {error ? "Unexpected response. Retry shortly." : "Scoring predictions, novelty, and category shifts."}
     </div>
   </div>
 );
@@ -85,7 +86,7 @@ export const AdvancedPage = () => {
   return (
     <AppShell
       title="Advanced"
-      subtitle="Advanced analytics for camera-level forecasting, novel pattern detection, and category shift analysis."
+      subtitle="Camera forecasting, novelty detection, category shift."
       badge={`${appEnv.demoLabel} • Advanced views`}
       aside={<FilterBar filters={filters} options={optionsQuery.data} onChange={patchFilters} onReset={resetFilters} />}
     >
@@ -100,7 +101,7 @@ export const AdvancedPage = () => {
           </div>
 
           <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
-            <SectionCard title="Forecast Residual Heatmap" subtitle="Residual percentage by camera and date, using real dates to show where activity is above or below expectation.">
+            <SectionCard title="Forecast Residual Heatmap" subtitle="Residual percent by camera and date. Above- and below-expectation activity.">
               <div className="overflow-auto">
                 <div className="grid min-w-max gap-2 text-xs" style={{ gridTemplateColumns: `220px repeat(${forecastDateColumns.length || 1}, minmax(74px, 1fr))` }}>
                   <div />
@@ -161,7 +162,7 @@ export const AdvancedPage = () => {
           </div>
 
           <div className="grid gap-4 xl:grid-cols-1">
-            <SectionCard title="Novel Events" subtitle="Rare camera-category-time combinations weighted toward uncommon pairings and baseline deviation.">
+            <SectionCard title="Novel Events" subtitle="Rare camera-category-time combinations, weighted by uncommonness.">
               <div className="overflow-auto rounded-2xl border border-white/10">
                 <table className="min-w-full text-left text-sm">
                   <thead className="bg-neutral-950/90 text-zinc-400">
@@ -200,22 +201,22 @@ export const AdvancedPage = () => {
           </div>
 
           <div className="grid gap-4 xl:grid-cols-1">
-            <SectionCard title="Novelty Volume Timeline" subtitle="Daily count of novelty-qualified patterns across the full filtered date range.">
+            <SectionCard title="Novelty Volume Timeline" subtitle="Daily count of novelty-qualified patterns.">
               <div className="h-80">
                 <ResponsiveContainer>
                   <BarChart data={noveltyVolumeData}>
-                    <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
-                    <XAxis dataKey="date" stroke="#a1a1aa" minTickGap={32} />
-                    <YAxis stroke="#a1a1aa" />
+                    <CartesianGrid stroke={gridStroke} vertical={false} />
+                    <XAxis dataKey="date" stroke={axisStroke} minTickGap={32} />
+                    <YAxis stroke={axisStroke} />
                     <Tooltip
-                      contentStyle={{ background: "#202020", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 16 }}
+                      contentStyle={tooltipStyle}
                       formatter={(value: unknown) => (typeof value === "number" ? formatNumber(value, 0) : String(value ?? ""))}
                       labelFormatter={(_, payload) => {
                         const item = payload?.[0]?.payload;
                         return item ? `${item.date} • ${item.topDriver ?? "No dominant driver"} • ${item.dominantCategory ? titleCase(item.dominantCategory) : "No dominant category"}` : "";
                       }}
                     />
-                    <Bar dataKey="noveltyCount" fill="#b8b8b8" radius={[8, 8, 0, 0]} name="Novelty count" />
+                    <Bar dataKey="noveltyCount" fill={BRAND.taupe} radius={[8, 8, 0, 0]} name="Novelty count" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -223,7 +224,7 @@ export const AdvancedPage = () => {
           </div>
 
           <div className="grid gap-4 xl:grid-cols-1">
-            <SectionCard title="Category Shift Matrix" subtitle="Camera-category share movement against recent baseline, highlighting over- and under-indexing rather than raw volume.">
+            <SectionCard title="Category Shift Matrix" subtitle="Camera-category share movement vs baseline. Over- and under-indexing.">
               <div className="overflow-auto">
                 <div className="grid min-w-max gap-2 text-xs" style={{ gridTemplateColumns: `220px repeat(${shiftColumns.length || 1}, minmax(92px, 1fr))` }}>
                   <div />

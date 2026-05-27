@@ -43,7 +43,7 @@ const phaseDescription: Record<ReportPhase, string> = {
 };
 
 const QueryState = ({ title, detail, action }: { title: string; detail: string; action?: ReactNode }) => (
-  <div className="panel rounded-3xl border border-white/10 bg-white/[0.03] px-4 py-10 text-center">
+  <div className="panel rounded-lg border border-white/10 bg-white/[0.03] px-4 py-10 text-center">
     <div className="text-sm font-medium text-white">{title}</div>
     <div className="mt-2 text-sm text-zinc-400">{detail}</div>
     {action ? <div className="mt-4">{action}</div> : null}
@@ -177,18 +177,18 @@ export const ReportsPage = () => {
   return (
     <AppShell
       title="Reports"
-      subtitle="Operational briefings synthesized from the existing analytics stack, generated after the current analytics inputs are loaded."
+      subtitle="Briefings synthesized from current analytics state."
       badge={`${appEnv.demoLabel} • Briefings`}
       aside={<FilterBar filters={filters} options={optionsQuery.data} onChange={patchFilters} onReset={resetFilters} />}
     >
       {hasStorageWarning ? (
-        <div className="rounded-3xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-zinc-100">
+        <div className="rounded-lg border border-white/15 bg-white/10 px-4 py-3 text-sm text-zinc-100">
           Persistent report storage is unavailable. {storageWarningDetail} Manual generation will use the loaded analytics inputs without waiting on storage.
         </div>
       ) : null}
 
       {healthQuery.data && !healthQuery.data.openRouterConfigured ? (
-        <div className="rounded-3xl border border-stone-400/25 bg-stone-400/10 px-4 py-3 text-sm text-stone-100">
+        <div className="rounded-lg border border-stone-400/25 bg-stone-400/10 px-4 py-3 text-sm text-stone-100">
           Report generation is disabled because `OPENROUTER_API_KEY` is not configured on the server.
         </div>
       ) : null}
@@ -257,7 +257,7 @@ export const ReportsPage = () => {
           </SectionCard>
 
           <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-            <SectionCard title="Key Findings" subtitle="Grounded observations with evidence and explicit actionability.">
+            <SectionCard title="Key Findings" subtitle="Grounded observations with evidence.">
               <div className="space-y-3">
                 {generatedBriefing.key_findings.map((finding) => (
                   <div key={finding.title} className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4">
@@ -296,7 +296,7 @@ export const ReportsPage = () => {
           </div>
 
           <div className="grid gap-4 xl:grid-cols-2">
-            <SectionCard title="Risks And Watchouts" subtitle="Operational concerns to keep on the radar.">
+            <SectionCard title="Risks And Watchouts" subtitle="Operational concerns under watch.">
               <div className="space-y-3">
                 {generatedBriefing.risks_or_watchouts.length > 0 ? (
                   generatedBriefing.risks_or_watchouts.map((item) => (

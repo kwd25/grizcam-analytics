@@ -9,6 +9,7 @@ import { NotableEventsList } from "../components/NotableEventsList";
 import { OpsKpiStrip } from "../components/OpsKpiStrip";
 import { SectionCard } from "../components/SectionCard";
 import { api } from "../lib/api";
+import { axisStroke, BRAND, gridStroke, tooltipStyle } from "../lib/chartColors";
 import { appEnv } from "../lib/env";
 import {
   formatNumber,
@@ -19,10 +20,10 @@ import { useDashboardFilters } from "../hooks/useDashboardFilters";
 import { useReportPrefetch } from "../hooks/useReportPrefetch";
 
 const QueryState = ({ error }: { error?: Error | null }) => (
-  <div className="panel rounded-3xl border border-white/10 bg-white/[0.03] px-4 py-10 text-center">
-    <div className="text-sm font-medium text-white">{error ? "This section is temporarily unavailable" : "Loading operations section"}</div>
+  <div className="panel rounded-lg border border-white/10 bg-white/[0.03] px-4 py-10 text-center">
+    <div className="text-sm font-medium text-white">{error ? "Section unavailable" : "Loading section"}</div>
     <div className="mt-2 text-sm text-zinc-400">
-      {error ? "The operations dashboard hit an unexpected response. Try refreshing in a moment." : "Loading fleet health, pipeline, and telemetry analytics."}
+      {error ? "Unexpected response. Retry shortly." : "Fetching operations data."}
     </div>
   </div>
 );
@@ -145,11 +146,11 @@ export const OpsPage = () => {
             <div className="h-72">
               <ResponsiveContainer>
                 <BarChart data={overview.processingFunnel}>
-                  <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
-                  <XAxis dataKey="stage" stroke="#a1a1aa" />
-                  <YAxis stroke="#a1a1aa" />
-                  <Tooltip contentStyle={{ background: "#202020", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 16 }} />
-                  <Bar dataKey="count" fill="#d4d4d8" radius={[10, 10, 0, 0]} />
+                  <CartesianGrid stroke={gridStroke} vertical={false} />
+                  <XAxis dataKey="stage" stroke={axisStroke} />
+                  <YAxis stroke={axisStroke} />
+                  <Tooltip contentStyle={tooltipStyle} />
+                  <Bar dataKey="count" fill={BRAND.pitchBlack} radius={[10, 10, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -159,7 +160,7 @@ export const OpsPage = () => {
         )}
 
         {overview ? (
-          <SectionCard title="Telemetry Snapshot" subtitle="Power diagnostics without the hard-to-read line chart.">
+          <SectionCard title="Telemetry Snapshot" subtitle="Power diagnostics by camera.">
             <div className="grid gap-3 md:grid-cols-3">
               <div className="rounded-2xl bg-white/5 p-4">
                 <div className="text-xs uppercase tracking-[0.18em] text-zinc-400">Avg Voltage</div>
@@ -200,7 +201,7 @@ export const OpsPage = () => {
           <NotableEventsList
             rows={overview.notableEvents}
             title="Operational Outliers"
-            subtitle="Recent events with elevated lag, degraded status, or other operator-relevant signals."
+            subtitle="Recent events with elevated lag or degraded status."
           />
         ) : (
           <QueryState error={overviewQuery.error as Error | null} />

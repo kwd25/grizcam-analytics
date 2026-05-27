@@ -635,7 +635,7 @@ const ModeSidebar = ({
   onPromptExample: (prompt: string) => void;
   latestQuery: QueryLatestContext | undefined;
 }) => (
-  <aside className="panel h-full rounded-[24px] p-2.5 overflow-auto">
+  <aside className="panel h-full rounded-lg p-2.5 overflow-auto">
     <div className="mb-2.5">
       <h2 className="text-base font-semibold text-white">Query Workspace</h2>
       <p className="mt-1 text-[11px] leading-4 text-zinc-400">Chat is the primary experience. Switch to Manual when you want the full builder and raw editor controls.</p>
@@ -708,7 +708,7 @@ const ChatTranscript = ({
 }) => (
   <div className="space-y-5 px-1 pb-2">
     {messages.length === 0 ? (
-      <div className="rounded-3xl border border-dashed border-white/10 px-6 py-12 text-center">
+      <div className="rounded-lg border border-dashed border-white/10 px-6 py-12 text-center">
         <div className="text-lg font-medium text-white">Ask for a query or follow up on the data</div>
         <p className="mt-2 text-sm text-zinc-400">Use Create query to generate and run SQL. Use Follow up to ask about the data, schema, or how to refine the last query.</p>
       </div>
@@ -717,7 +717,7 @@ const ChatTranscript = ({
       if (message.kind === "user") {
         return (
           <div key={message.id} className="flex justify-end">
-            <div className="max-w-[85%] rounded-[28px] border border-white/15 bg-white/10 px-4 py-3">
+            <div className="max-w-[85%] rounded-lg border border-white/15 bg-white/10 px-4 py-3">
               <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-100/80">
                 {message.action === "create-query" ? "Create query" : "Follow up"}
               </div>
@@ -730,7 +730,7 @@ const ChatTranscript = ({
       if (message.kind === "notice") {
         return (
           <div key={message.id} className="flex justify-start">
-            <div className="max-w-[85%] rounded-[28px] border border-white/10 bg-white/5 px-4 py-3">
+            <div className="max-w-[85%] rounded-lg border border-white/10 bg-white/5 px-4 py-3">
               <div className="text-sm font-medium text-white">{message.title}</div>
               <div className="mt-2 text-sm leading-6 text-zinc-300">{message.detail}</div>
               <div className="mt-3">
@@ -744,7 +744,7 @@ const ChatTranscript = ({
       if (message.kind === "follow-up") {
         return (
           <div key={message.id} className="flex justify-start">
-            <div className="max-w-[92%] rounded-[28px] border border-white/10 bg-white/5 px-4 py-4">
+            <div className="max-w-[92%] rounded-lg border border-white/10 bg-white/5 px-4 py-4">
               <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-400">Follow up</div>
               <div className="mt-3">
                 <MarkdownMessage markdown={message.answer} />
@@ -878,7 +878,7 @@ const ChatWorkspace = ({
             <ChatTranscript messages={messages} isBusy={isBusy} requestStatus={requestStatus} onUseSuggestedSql={onUseSuggestedSql} />
           </div>
           <div className="mt-1.5 shrink-0 border-t border-white/10 pt-2">
-            <div className="rounded-[24px] border border-white/10 bg-neutral-950/90 p-2 shadow-[0_-12px_32px_rgba(2,6,23,0.22)]">
+            <div className="rounded-lg border border-white/10 bg-neutral-950/90 p-2">
               <textarea
                 value={composerText}
                 onChange={(event) => onComposerTextChange(event.target.value)}
@@ -1472,7 +1472,7 @@ const ManualWorkspace = ({
               }
             }}
             spellCheck={false}
-            className="min-h-[320px] w-full rounded-3xl border border-white/10 bg-neutral-950/75 px-4 py-4 font-mono text-sm leading-6 text-zinc-100 outline-none focus:border-zinc-300"
+            className="min-h-[320px] w-full rounded-lg border border-white/10 bg-neutral-950/75 px-4 py-4 font-mono text-sm leading-6 text-zinc-100 outline-none focus:border-zinc-300"
           />
           <div className="text-xs text-zinc-400">Generated SQL stays editable. You can inspect and tweak it before or after validation.</div>
           <div className="flex flex-wrap gap-3">

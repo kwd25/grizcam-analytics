@@ -1,5 +1,6 @@
 import type { MonthlyActivityCategoryPoint } from "@grizcam/shared";
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { axisStroke, chartSeries, gridStroke, tooltipStyle } from "../../lib/chartColors";
 import { SectionCard } from "../SectionCard";
 
 export const MonthlyActivityByCategoryChart = ({ data }: { data: MonthlyActivityCategoryPoint[] }) => (
@@ -10,15 +11,15 @@ export const MonthlyActivityByCategoryChart = ({ data }: { data: MonthlyActivity
     <div className="h-80">
       <ResponsiveContainer>
         <BarChart data={data}>
-          <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
-          <XAxis dataKey="month" stroke="#a1a1aa" />
-          <YAxis stroke="#a1a1aa" />
-          <Tooltip contentStyle={{ background: "#202020", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 16 }} />
+          <CartesianGrid stroke={gridStroke} vertical={false} />
+          <XAxis dataKey="month" stroke={axisStroke} />
+          <YAxis stroke={axisStroke} />
+          <Tooltip contentStyle={tooltipStyle} />
           <Legend />
-          <Bar dataKey="wildlife" stackId="a" fill="#e5e5e5" />
-          <Bar dataKey="human" stackId="a" fill="#b8b8b8" />
-          <Bar dataKey="vehicle" stackId="a" fill="#8f8f8f" />
-          <Bar dataKey="emptyScene" stackId="a" fill="#5f5f5f" />
+          <Bar dataKey="wildlife" stackId="a" fill={chartSeries[0]} />
+          <Bar dataKey="human" stackId="a" fill={chartSeries[1]} />
+          <Bar dataKey="vehicle" stackId="a" fill={chartSeries[2]} />
+          <Bar dataKey="emptyScene" stackId="a" fill={chartSeries[3]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

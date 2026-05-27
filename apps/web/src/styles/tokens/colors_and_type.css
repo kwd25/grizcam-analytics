@@ -1,0 +1,98 @@
+/* ============================================================================
+   GRIZZLY SYSTEMS — COLORS & TYPOGRAPHY
+   ----------------------------------------------------------------------------
+   Single source of truth for colors and type tokens. Imports the master
+   theme but exposes the most-used roles as direct, semantic names that map
+   cleanly to design-tool foundations (fg1, fg2, h1, h2, mono, etc).
+
+   Usage:
+     @import url('./colors_and_type.css');
+     .my-headline { font: var(--type-h1); color: var(--fg1); }
+   ============================================================================ */
+
+@import url('./grizzly-systems-theme.css');
+
+/* Webfonts — local files first, then Google Fonts fallback */
+@font-face {
+  font-family: 'Inter Tight';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: local('Inter Tight'),
+       url('https://fonts.gstatic.com/s/intertight/v7/NlIgTfKIfqzRlEmpa1WgWNeM.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Source Serif Pro';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: local('Source Serif 4'), local('Source Serif Pro'),
+       url('https://fonts.gstatic.com/s/sourceserif4/v8/vEFy2_tTDB4M7-auWDN0ahZJW3IX2ih5nk3AucvUHf6OAVIJmeUDygwjipdqp7XXFeR1.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: local('JetBrains Mono'),
+       url('https://fonts.gstatic.com/s/jetbrainsmono/v18/tDbY2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKxjPVmUsaaDhw.woff2') format('woff2');
+}
+
+
+/* ============================================================================
+   COLOR ROLES (short aliases)
+   ----------------------------------------------------------------------------
+   These are the names you reach for first when hand-writing components.
+   They alias the verbose semantic tokens in grizzly-systems-theme.css.
+   ============================================================================ */
+
+:root {
+  /* Foreground */
+  --fg1:           var(--color-text);              /* primary type */
+  --fg2:           var(--color-text-secondary);    /* secondary / captions */
+  --fg-muted:      var(--color-text-muted);
+  --fg-accent:     var(--color-text-accent);       /* goldenrod ink */
+  --fg-on-accent:  var(--color-text-on-accent);
+  --fg-on-inverse: var(--color-text-on-inverse);
+
+  /* Background */
+  --bg:            var(--color-surface);           /* page */
+  --bg-raised:     var(--color-surface-raised);    /* cards */
+  --bg-inset:      var(--color-surface-inset);     /* segmented, code */
+  --bg-inverse:    var(--color-surface-inverse);   /* dark on light */
+
+  /* Borders */
+  --line:          var(--color-border);
+  --line-strong:   var(--color-border-strong);
+  --line-accent:   var(--color-border-accent);
+
+  /* Accent — use ONE per view */
+  --accent:        var(--color-accent);
+  --accent-glow:   var(--color-accent-glow);
+}
+
+
+/* ============================================================================
+   TYPE ROLES (composed shorthand)
+   ----------------------------------------------------------------------------
+   Use these directly in `font:` shorthand or split components.
+   ============================================================================ */
+
+:root {
+  /* Family aliases */
+  --serif-display: var(--font-display);    /* "display" = Inter Tight, the spec calls it display */
+  --serif-body:    var(--font-body);
+  --sans-ui:       var(--font-ui);
+  --mono:          var(--font-mono);
+
+  /* Pre-composed font shorthand: "weight size/leading family" */
+  --type-h1:      500 var(--text-h1-size)/var(--text-h1-leading) var(--font-display);
+  --type-h2:      500 var(--text-h2-size)/var(--text-h2-leading) var(--font-display);
+  --type-h3:      500 var(--text-h3-size)/var(--text-h3-leading) var(--font-display);
+  --type-lead:    400 var(--text-lead-size)/var(--text-lead-leading) var(--font-body);
+  --type-body:    400 var(--text-body-size)/var(--text-body-leading) var(--font-body);
+  --type-caption: 400 var(--text-cap-size)/var(--text-cap-leading) var(--font-ui);
+  --type-eyebrow: 500 var(--text-eyebrow-size)/var(--text-eyebrow-leading) var(--font-ui);
+  --type-mono:    400 13px/20px var(--font-mono);
+  --type-mono-sm: 400 10px/14px var(--font-mono);
+}

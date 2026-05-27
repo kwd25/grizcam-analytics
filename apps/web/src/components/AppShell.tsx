@@ -1,7 +1,11 @@
-import type { PropsWithChildren, ReactNode } from "react";
+import type { ComponentType, PropsWithChildren, ReactNode, SVGProps } from "react";
+import { Activity, BarChart3, FileText, LayoutDashboard, MessageSquare, Moon, Sun } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { EmbedLayout } from "../layouts/EmbedLayout";
+import { useTheme } from "../hooks/useTheme";
 import { classNames } from "../lib/utils";
+
+type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
 
 type AppShellProps = PropsWithChildren<{
   title: string;
@@ -13,13 +17,30 @@ type AppShellProps = PropsWithChildren<{
   asideClassName?: string;
 }>;
 
-const navItems = [
-  { to: "/", label: "Query", end: true },
-  { to: "/overview", label: "Overview" },
-  { to: "/ops", label: "Ops" },
-  { to: "/advanced", label: "Advanced" },
-  { to: "/reports", label: "Reports" }
+const navItems: Array<{ to: string; label: string; end?: boolean; Icon: IconComponent }> = [
+  { to: "/", label: "Query", end: true, Icon: MessageSquare },
+  { to: "/overview", label: "Overview", Icon: LayoutDashboard },
+  { to: "/ops", label: "Ops", Icon: Activity },
+  { to: "/advanced", label: "Advanced", Icon: BarChart3 },
+  { to: "/reports", label: "Reports", Icon: FileText }
 ];
+
+const ThemeToggle = () => {
+  const { theme, toggle } = useTheme();
+  const isDark = theme === "dark";
+  const Icon = isDark ? Sun : Moon;
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
+      title={isDark ? "Switch to light theme" : "Switch to dark theme"}
+      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-zinc-300 transition hover:bg-white/10"
+    >
+      <Icon width={16} height={16} strokeWidth={1.5} aria-hidden="true" />
+    </button>
+  );
+};
 
 export const AppShell = ({ title, subtitle, badge, aside, viewportLayout = false, mainClassName, asideClassName, children }: AppShellProps) => {
   const location = useLocation();
@@ -48,11 +69,11 @@ export const AppShell = ({ title, subtitle, badge, aside, viewportLayout = false
       )}
     >
       <div className={classNames("mx-auto max-w-[1800px]", viewportLayout ? "flex min-h-screen flex-col gap-2 lg:h-full lg:min-h-0" : "space-y-2")}>
-        <header className="shrink-0 rounded-[20px] border border-white/10 bg-neutral-900 px-3 py-2">
+        <header className="shrink-0 rounded-lg border border-white/10 bg-neutral-900 px-3 py-2">
           <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
             <div className="min-w-0 space-y-2">
               <div className="flex min-w-0 items-start gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-neutral-950">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-[var(--grz-pitch-black)]">
                   <img src="/brand/grizzly-mark.png" alt="" className="h-8 w-8 object-contain opacity-85 invert" />
                 </div>
                 <div className="min-w-0">
@@ -68,17 +89,21 @@ export const AppShell = ({ title, subtitle, badge, aside, viewportLayout = false
                     end={item.end}
                     className={({ isActive }) =>
                       classNames(
-                        "rounded-2xl border px-3 py-1 text-xs transition",
+                        "flex items-center gap-1.5 rounded-2xl border px-3 py-1 text-xs transition",
                         isActive ? "border-white/25 bg-white/15 text-white" : "border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10"
                       )
                     }
                   >
-                    {item.label}
+                    <item.Icon width={14} height={14} strokeWidth={1.5} aria-hidden="true" />
+                    <span>{item.label}</span>
                   </NavLink>
                 ))}
               </div>
             </div>
-            {badge ? <div className="max-w-full rounded-2xl border border-white/15 bg-white/10 px-2.5 py-1.5 text-xs leading-5 text-zinc-100">{badge}</div> : null}
+            <div className="flex items-center gap-2">
+              {badge ? <div className="max-w-full rounded-2xl border border-white/15 bg-white/10 px-2.5 py-1.5 text-xs leading-5 text-zinc-100">{badge}</div> : null}
+              <ThemeToggle />
+            </div>
           </div>
         </header>
 

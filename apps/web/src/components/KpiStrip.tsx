@@ -1,34 +1,54 @@
 import type { KpiResponse } from "@grizcam/shared";
 import { formatCompactNumber, formatNumber, formatPercent, titleCase } from "../lib/utils";
 
-const MetricCard = ({ label, value, tone = "text-white" }: { label: string; value: string; tone?: string }) => (
-  <div className="panel rounded-3xl p-4">
-    <div className="text-xs uppercase tracking-[0.18em] text-zinc-400">{label}</div>
-    <div className={`mt-3 text-2xl font-semibold ${tone}`}>{value}</div>
+type MetricCardProps = {
+  index: number;
+  label: string;
+  value: string;
+  /** Long values (camera names, species) need to wrap rather than shrink. */
+  textual?: boolean;
+};
+
+const MetricCard = ({ index, label, value, textual = false }: MetricCardProps) => (
+  <div className="panel flex flex-col gap-2 rounded-lg p-4">
+    <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] text-zinc-400">
+      <span className="font-mono tabular-nums text-zinc-500">{String(index).padStart(2, "0")}</span>
+      <span className="text-zinc-500">/</span>
+      <span className="font-semibold">{label}</span>
+    </div>
+    <div
+      className={
+        textual
+          ? "text-base font-medium leading-tight text-white"
+          : "font-mono text-2xl font-medium leading-none tabular-nums text-white"
+      }
+    >
+      {value}
+    </div>
   </div>
 );
 
 export const KpiStrip = ({ data }: { data: KpiResponse }) => {
-  const cards = [
-    ["Total Events", formatCompactNumber(data.totalUniqueEventGroups), "text-white"],
-    ["Total Captures", formatCompactNumber(data.totalRawRows), "text-white"],
-    ["Wildlife Share", formatPercent(data.wildlifeSharePct / 100)],
-    ["Human Share", formatPercent(data.humanSharePct / 100)],
-    ["Vehicle Share", formatPercent(data.vehicleSharePct / 100)],
-    ["Most Active Camera", data.mostActiveCamera ?? "N/A"],
-    ["Peak Activity Hour", data.peakActivityHour === null ? "N/A" : `${data.peakActivityHour}:00`],
-    ["Avg Daily Events", formatNumber(data.avgDailyEventGroups, 1)],
-    ["Avg Images per Event", formatNumber(data.avgBurstLength, 2)],
-    ["Wildlife Types Seen", formatNumber(data.biodiversityScore), "text-zinc-100"],
-    ["Night Activity Share", formatPercent(data.nocturnalityScore), "text-zinc-100"],
-    ["Dawn/Dusk Activity Share", formatPercent(data.dawnDuskPreference), "text-zinc-100"],
-    ["Top Species", data.topSpecies ? titleCase(data.topSpecies) : "N/A", "text-zinc-100"]
+  const cards: Array<{ label: string; value: string; textual?: boolean }> = [
+    { label: "Total Events", value: formatCompactNumber(data.totalUniqueEventGroups) },
+    { label: "Total Captures", value: formatCompactNumber(data.totalRawRows) },
+    { label: "Wildlife Share", value: formatPercent(data.wildlifeSharePct / 100) },
+    { label: "Human Share", value: formatPercent(data.humanSharePct / 100) },
+    { label: "Vehicle Share", value: formatPercent(data.vehicleSharePct / 100) },
+    { label: "Most Active Camera", value: data.mostActiveCamera ?? "N/A", textual: true },
+    { label: "Peak Activity Hour", value: data.peakActivityHour === null ? "N/A" : `${data.peakActivityHour}:00` },
+    { label: "Avg Daily Events", value: formatNumber(data.avgDailyEventGroups, 1) },
+    { label: "Avg Images Per Event", value: formatNumber(data.avgBurstLength, 2) },
+    { label: "Wildlife Types Seen", value: formatNumber(data.biodiversityScore) },
+    { label: "Night Activity Share", value: formatPercent(data.nocturnalityScore) },
+    { label: "Dawn Dusk Share", value: formatPercent(data.dawnDuskPreference) },
+    { label: "Top Species", value: data.topSpecies ? titleCase(data.topSpecies) : "N/A", textual: true }
   ];
 
   return (
     <div className="grid metric-grid gap-3">
-      {cards.map(([label, value, tone]) => (
-        <MetricCard key={label} label={label} value={value} tone={tone} />
+      {cards.map((card, index) => (
+        <MetricCard key={card.label} index={index + 1} {...card} />
       ))}
     </div>
   );

@@ -1,5 +1,6 @@
 import type { DailyActivityPoint } from "@grizcam/shared";
 import { ResponsiveContainer, AreaChart, Area, CartesianGrid, Legend, Tooltip, XAxis, YAxis } from "recharts";
+import { axisStroke, BRAND, chartSeries, gridStroke, tooltipStyle } from "../../lib/chartColors";
 import { SectionCard } from "../SectionCard";
 
 type DailyTrendChartProps = {
@@ -19,31 +20,31 @@ export const DailyTrendChart = ({ data, onSelectDate }: DailyTrendChartProps) =>
     }, new Map<string, Record<string, number | string>>()).values()
   );
 
-  const palette = ["#d4d4d8", "#a1a1aa", "#808080", "#666666", "#525252"];
-
   return (
     <SectionCard title="Daily Activity Trend" subtitle="Click a day to open a detailed drilldown panel.">
       <div className="h-80">
         <ResponsiveContainer>
           <AreaChart data={rows} onClick={(state) => state?.activeLabel && onSelectDate(String(state.activeLabel))}>
-            <defs>
-              <linearGradient id="activity-fill" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stopColor="#d4d4d8" stopOpacity={0.35} />
-                <stop offset="100%" stopColor="#d4d4d8" stopOpacity={0.02} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
-            <XAxis dataKey="date" stroke="#a1a1aa" minTickGap={36} />
-            <YAxis stroke="#a1a1aa" />
-            <Tooltip contentStyle={{ background: "#202020", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 16 }} />
+            <CartesianGrid stroke={gridStroke} vertical={false} />
+            <XAxis dataKey="date" stroke={axisStroke} minTickGap={36} />
+            <YAxis stroke={axisStroke} />
+            <Tooltip contentStyle={tooltipStyle} />
             <Legend />
-            <Area type="monotone" dataKey="total" stroke="#e5e5e5" fill="url(#activity-fill)" strokeWidth={2} name="All cameras" />
-            {cameraNames.slice(0, 5).map((cameraName, index) => (
+            <Area
+              type="monotone"
+              dataKey="total"
+              stroke={BRAND.pitchBlack}
+              fill={BRAND.taupe}
+              fillOpacity={0.12}
+              strokeWidth={2}
+              name="All cameras"
+            />
+            {cameraNames.slice(0, 4).map((cameraName, index) => (
               <Area
                 key={cameraName}
                 type="monotone"
                 dataKey={cameraName}
-                stroke={palette[index % palette.length]}
+                stroke={chartSeries[(index + 1) % chartSeries.length]}
                 fillOpacity={0}
                 strokeWidth={1.5}
                 name={cameraName}

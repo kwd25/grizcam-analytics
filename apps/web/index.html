@@ -11,6 +11,15 @@
     <link rel="icon" type="image/png" href="/brand/favicon.png" />
     <link rel="apple-touch-icon" href="/brand/favicon.png" />
     <title>GrizCam Demo | Yellowstone 2025 Analytics</title>
+    <script>
+      // Apply persisted theme before React mounts to avoid FOUC.
+      (function () {
+        try {
+          var t = localStorage.getItem("grizcam.theme");
+          if (t === "dark") document.documentElement.setAttribute("data-theme", "dark");
+        } catch (_) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

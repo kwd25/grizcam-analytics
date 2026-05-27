@@ -1,21 +1,92 @@
 @import "tailwindcss";
+@import "./styles/tokens/colors_and_type.css";
+
+/* ============================================================================
+   GrizCam Analytics — global stylesheet
+   Brand tokens live in styles/tokens/. Light is default; dark is contextual
+   via <html data-theme="dark"> per the design system rule.
+   ============================================================================ */
+
+
+/* ============================================================================
+   Tailwind palette override (pragmatic stop-gap)
+   ----------------------------------------------------------------------------
+   Existing component class strings (`bg-neutral-900`, `text-zinc-100`,
+   `border-white/10`, etc.) were written assuming a dark theme. We override the
+   specific shades the codebase actually uses so the same class strings work
+   in BOTH light and dark themes:
+     - `:root` defines light-theme values (where "light text" → dark text,
+       "dark surface" → light raised surface).
+     - `[data-theme="dark"]` overrides with dark-theme values (closer to the
+       original intent: light text on dark surface, on the brand palette).
+
+   The @theme block registers the variables with Tailwind so it generates the
+   utility classes; the actual values are owned by :root / [data-theme="dark"].
+
+   Long-term, components should migrate to semantic utility names like
+   `bg-surface`, `text-fg`, `border-default`. See docs/DESIGN_SYSTEM_AUDIT.md.
+   ============================================================================ */
+
+@theme {
+  /* Register the names so Tailwind generates the utility classes.
+     Values are overridden per-theme below. */
+  --color-white: initial;
+  --color-black: initial;
+  --color-stone-100: initial;
+  --color-stone-200: initial;
+  --color-stone-400: initial;
+  --color-slate-400: initial;
+  --color-neutral-900: initial;
+  --color-neutral-950: initial;
+  --color-zinc-100: initial;
+  --color-zinc-200: initial;
+  --color-zinc-300: initial;
+  --color-zinc-400: initial;
+  --color-zinc-500: initial;
+}
 
 :root {
-  color-scheme: dark;
-  --bg: #111111;
-  --surface: #181818;
-  --panel: rgba(31, 31, 31, 0.94);
-  --panel-strong: rgba(38, 38, 38, 0.98);
-  --border: rgba(255, 255, 255, 0.12);
-  --text: #f4f4f5;
-  --muted: #a1a1aa;
-  --accent: #d4d4d8;
-  --accent-2: #a1a1aa;
-  --accent-3: #e5e5e5;
-  --danger: #d6b0b0;
-  font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
+  color-scheme: light;
+  font-family: var(--sans-ui);
   background: var(--bg);
-  color: var(--text);
+  color: var(--fg1);
+
+  /* Light theme: "white" classes become dark ink so light components
+     written for dark bg now read on a light bg. */
+  --color-white: var(--grz-pitch-black);
+  --color-black: var(--grz-floral-white);
+  --color-stone-100: var(--grz-pitch-black);
+  --color-stone-200: var(--grz-pitch-black);
+  --color-stone-400: var(--grz-taupe);
+  --color-slate-400: var(--grz-taupe);
+  --color-neutral-900: var(--grz-bone);
+  --color-neutral-950: var(--grz-bone);
+  --color-zinc-100: var(--grz-pitch-black);
+  --color-zinc-200: var(--grz-pitch-black);
+  --color-zinc-300: var(--grz-taupe);
+  --color-zinc-400: var(--grz-taupe);
+  --color-zinc-500: var(--grz-taupe);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Dark theme: classes work as originally intended (light text on dark
+     surface) but resolve to brand palette instead of the default Tailwind
+     cold grays. */
+  --color-white: var(--grz-floral-white);
+  --color-black: var(--grz-pitch-black);
+  --color-stone-100: var(--grz-floral-white);
+  --color-stone-200: var(--grz-floral-white);
+  --color-stone-400: var(--grz-bone);
+  --color-slate-400: var(--grz-bone);
+  --color-neutral-900: var(--grz-taupe);
+  --color-neutral-950: var(--grz-pitch-black);
+  --color-zinc-100: var(--grz-floral-white);
+  --color-zinc-200: var(--grz-floral-white);
+  --color-zinc-300: var(--grz-bone);
+  --color-zinc-400: var(--grz-bone);
+  --color-zinc-500: var(--grz-bone);
 }
 
 html,
@@ -24,7 +95,9 @@ body {
   min-width: 320px;
   min-height: 100vh;
   background: var(--bg);
+  color: var(--fg1);
   overflow-x: hidden;
+  font: var(--type-body);
 }
 
 #root {
@@ -32,17 +105,43 @@ body {
   overflow-x: hidden;
 }
 
+/* ---------------------------------------------------------------------------
+   Motion — design system rule: 120ms ease, opacity + transform only.
+   --------------------------------------------------------------------------- */
+
+.transition {
+  transition-property: opacity, transform;
+  transition-timing-function: ease;
+  transition-duration: 120ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .transition,
+  [class*="transition-"] {
+    transition: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Panel pattern — 1px border on raised surface. No shadow, no backdrop blur.
+   --------------------------------------------------------------------------- */
+
 .panel {
-  background: var(--panel);
-  border: 1px solid var(--border);
+  background: var(--bg-raised);
+  border: 1px solid var(--line);
   backdrop-filter: none;
   box-shadow: none;
   min-width: 0;
+  color: var(--fg1);
 }
 
 .panel-strong {
-  background: var(--panel-strong);
+  background: var(--bg-inset);
 }
+
+/* ---------------------------------------------------------------------------
+   Grid layouts used by dashboard pages.
+   --------------------------------------------------------------------------- */
 
 .metric-grid {
   grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
@@ -54,8 +153,4 @@ body {
 
 .heatmap-grid-subject {
   grid-template-columns: 190px repeat(var(--subject-columns), minmax(72px, 1fr));
-}
-
-input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(1);
 }

@@ -1,5 +1,6 @@
 import type { DaySummaryResponse } from "@grizcam/shared";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { axisStroke, BRAND, gridStroke, tooltipStyle } from "../lib/chartColors";
 import { formatEventTimestamp, formatNumber, titleCase } from "../lib/utils";
 import { SectionCard } from "./SectionCard";
 
@@ -29,11 +30,11 @@ export const DayDetailPanel = ({ selectedDate, data }: { selectedDate?: string; 
         <div className="h-56">
           <ResponsiveContainer>
             <BarChart data={data.hourlyDistribution}>
-              <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
-              <XAxis dataKey="hour" stroke="#a1a1aa" />
-              <YAxis stroke="#a1a1aa" />
-              <Tooltip contentStyle={{ background: "#202020", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 16 }} />
-              <Bar dataKey="uniqueEventGroups" fill="#d4d4d8" />
+              <CartesianGrid stroke={gridStroke} vertical={false} />
+              <XAxis dataKey="hour" stroke={axisStroke} />
+              <YAxis stroke={axisStroke} />
+              <Tooltip contentStyle={tooltipStyle} />
+              <Bar dataKey="uniqueEventGroups" fill={BRAND.pitchBlack} />
             </BarChart>
           </ResponsiveContainer>
         </div>

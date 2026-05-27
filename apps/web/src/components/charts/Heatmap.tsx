@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { heatmapColor } from "../../lib/chartColors";
 import { classNames, formatHourLabel, formatNumber, titleCase } from "../../lib/utils";
 import { SectionCard } from "../SectionCard";
 
@@ -50,7 +51,7 @@ export const Heatmap = ({ title, subtitle, rows, columns, data, variant = "hour"
                       "flex h-10 items-center justify-center rounded-xl border border-white/5 text-[11px] font-medium text-zinc-100"
                     )}
                     style={{
-                      backgroundColor: `rgba(212, 212, 216, ${0.08 + intensity * 0.58})`
+                      backgroundColor: heatmapColor(intensity)
                     }}
                     title={`${row} • ${column}: ${formatNumber(value)}`}
                   >

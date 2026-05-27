@@ -2,7 +2,7 @@ import type { OverviewKpis } from "@grizcam/shared";
 import { formatCompactNumber, formatDurationShort, formatNullableNumber, formatPercent } from "../lib/utils";
 
 const MetricCard = ({ label, value, tone = "text-white" }: { label: string; value: string; tone?: string }) => (
-  <div className="panel rounded-3xl p-4">
+  <div className="panel rounded-lg p-4">
     <div className="text-xs uppercase tracking-[0.18em] text-zinc-400">{label}</div>
     <div className={`mt-3 text-2xl font-semibold ${tone}`}>{value}</div>
   </div>
